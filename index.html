@@ -4,46 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Games Site</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .game {
+            border: 1px solid #ccc;
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .game button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .game button:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to the Games Site</h1>
-        <div class="mode-toggle">
-            <label for="toggle">Toggle Dark/Light Mode</label>
-            <input type="checkbox" id="toggle" onchange="toggleTheme()">
-        </div>
-    </header>
-    <main>
-        <section class="recent-games">
-            <h2>Recent Games</h2>
-            <ul id="recent-game-list"></ul>
-        </section>
-        <section class="favorites">
-            <h2>Your Favorites</h2>
-            <ul id="favorite-game-list"></ul>
-        </section>
-        <section class="games">
-            <h2>Available Games</h2>
-            <ul id="game-list">
-                <!-- List of games will be dynamically generated here -->
-            </ul>
-        </section>
-        <section class="soundboard">
-            <h2>Soundboard</h2>
-            <ul id="soundboard-list">
-                <!-- List of soundboard sounds will be dynamically generated here -->
-            </ul>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Delilah Webe</p>
-    </footer>
-<script>
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-}
-</script>
+    <h1>Welcome to the Games Site</h1>
+    <div class="game">
+        <h2>Game 1</h2>
+        <p>Description of Game 1.</p>
+        <button onclick="alert('Game 1 started!')">Play Game 1</button>
+    </div>
+    <div class="game">
+        <h2>Game 2</h2>
+        <p>Description of Game 2.</p>
+        <button onclick="alert('Game 2 started!')">Play Game 2</button>
+    </div>
+    <script>
+        console.log('Games Site Loaded');
+        function showAlert(gameName) {
+            alert(gameName + ' started!');
+        }
+    </script>
 </body>
 </html>
