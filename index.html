@@ -1,143 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultimate Games Hub</title>
-<style>
-body {margin:0; font-family:Arial,sans-serif; background:#0f172a; color:white;}
-header {background:#020617; padding:15px; text-align:center; position:sticky; top:0; z-index:10;}
-header h1 {margin:0; font-size:24px;}
-input#search {width:60%; padding:10px; border-radius:8px; border:none; margin-top:10px;}
-.tabs {display:flex; justify-content:center; margin:15px 0; flex-wrap:wrap;}
-.tab {background:#1e293b; margin:5px; padding:10px 20px; cursor:pointer; border-radius:8px; transition:.2s;}
-.tab.active, .tab:hover {background:#22c55e;}
-.games {display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px; padding:10px 20px;}
-.game {background:#1e293b; border-radius:8px; cursor:pointer; transition:.2s;}
-.game img {width:100%; height:120px; object-fit:cover; border-radius:8px 8px 0 0;}
-.game p {padding:5px; text-align:center; font-weight:bold; margin:0;}
-#player {padding:20px; text-align:center;}
-iframe {width:100%; height:80vh; border:none; border-radius:10px;}
-.fullscreen-btn {margin-top:10px; padding:10px 15px; background:#22c55e; border:none; border-radius:8px; cursor:pointer;}
-.soundboard {text-align:center; padding:15px;}
-.soundboard button {margin:5px; padding:10px; border:none; border-radius:8px; cursor:pointer;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games Site</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
-
-<header>
-<h1>Ultimate Games Hub 🎮</h1>
-<input type="text" id="search" placeholder="Search games..." onkeyup="searchGames()">
-</header>
-
-<div class="tabs" id="categoryTabs"></div>
-
-<div class="games" id="gameList"></div>
-
-<div id="player"></div>
-
-<h2 style="text-align:center;">🔊 Meme Soundboard</h2>
-<div class="soundboard" id="soundboard"></div>
-
+    <header>
+        <h1>Welcome to the Games Site</h1>
+        <div class="mode-toggle">
+            <label for="toggle">Toggle Dark/Light Mode</label>
+            <input type="checkbox" id="toggle" onchange="toggleTheme()">
+        </div>
+    </header>
+    <main>
+        <section class="recent-games">
+            <h2>Recent Games</h2>
+            <ul id="recent-game-list"></ul>
+        </section>
+        <section class="favorites">
+            <h2>Your Favorites</h2>
+            <ul id="favorite-game-list"></ul>
+        </section>
+        <section class="games">
+            <h2>Available Games</h2>
+            <ul id="game-list">
+                <!-- List of games will be dynamically generated here -->
+            </ul>
+        </section>
+        <section class="soundboard">
+            <h2>Soundboard</h2>
+            <ul id="soundboard-list">
+                <!-- List of soundboard sounds will be dynamically generated here -->
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Delilah Webe</p>
+    </footer>
 <script>
-// ======= GAMES DATA =======
-const games = [
-{name:"Slope", url:"https://slopegame.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Action"},
-{name:"Retro Bowl", url:"https://retro-bowl.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Sports"},
-{name:"Golf Orbit", url:"https://golforbit.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Sports"},
-{name:"Krunker", url:"https://krunker.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Action"},
-{name:"Shell Shockers", url:"https://shellshock.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Action"},
-{name:"1v1.LOL", url:"https://1v1.lol", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Action"},
-{name:"2048", url:"https://play2048.co", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Puzzle"},
-{name:"Tetris", url:"https://tetris.com/play-tetris", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Puzzle"},
-{name:"Stumble Guys", url:"https://stumbleguys.com", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Action"},
-{name:"Among Us", url:"https://among-us.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png", category:"Action"},
-// Add up to 200+ games in the same format
-];
-
-// ======= CATEGORY TABS =======
-const categories = ["All","Action","Sports","Puzzle","IO","Adventure"];
-const categoryTabs = document.getElementById("categoryTabs");
-
-categories.forEach(cat=>{
-    const tab=document.createElement("div");
-    tab.className="tab";
-    tab.innerText=cat;
-    tab.onclick=()=>{filterCategory(cat);}
-    if(cat==="All") tab.classList.add("active");
-    categoryTabs.appendChild(tab);
-});
-
-let currentCategory="All";
-
-function filterCategory(cat){
-    currentCategory=cat;
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    [...categoryTabs.children].find(t=>t.innerText===cat).classList.add("active");
-    searchGames();
-}
-
-// ======= LOAD GAMES =======
-function loadGames(list){
-    let html="";
-    list.forEach(g=>{
-        html+=`<div class="game" onclick="playGame('${g.url}')">
-        <img src="${g.img}"><p>${g.name}</p></div>`;
-    });
-    document.getElementById("gameList").innerHTML=html;
-}
-
-// ======= SEARCH + CATEGORY =======
-function searchGames(){
-    let input=document.getElementById("search").value.toLowerCase();
-    let filtered=games.filter(g=>{
-        let matchName=g.name.toLowerCase().includes(input);
-        let matchCat=(currentCategory==="All" || g.category===currentCategory);
-        return matchName && matchCat;
-    });
-    loadGames(filtered);
-}
-
-loadGames(games);
-
-// ======= GAME PLAYER =======
-function playGame(url){
-    document.getElementById("player").innerHTML=`<iframe src="${url}"></iframe>
-    <br><button class="fullscreen-btn" onclick="goFullscreen()">Go Fullscreen</button>`;
-    window.scrollTo(0, document.body.scrollHeight);
-}
-
-function goFullscreen(){
-    let iframe=document.querySelector("iframe");
-    if(iframe.requestFullscreen){iframe.requestFullscreen();}
-}
-
-// ======= MEME SOUNDS =======
-const sounds={
-vine:"https://www.myinstants.com/media/sounds/vine-boom.mp3",
-airhorn:"https://www.myinstants.com/media/sounds/airhorn.mp3",
-bruh:"https://www.myinstants.com/media/sounds/movie_1.mp3",
-laugh:"https://www.myinstants.com/media/sounds/laugh.mp3",
-wow:"https://www.myinstants.com/media/sounds/wow.mp3",
-boom:"https://www.myinstants.com/media/sounds/explosion.mp3",
-amongus:"https://www.myinstants.com/media/sounds/among-us.mp3",
-sadviolin:"https://www.myinstants.com/media/sounds/sad-violin.mp3",
-oof:"https://www.myinstants.com/media/sounds/oof.mp3",
-airhorn2:"https://www.myinstants.com/media/sounds/airhorn-2.mp3",
-sus:"https://www.myinstants.com/media/sounds/sus.mp3",
-flex:"https://www.myinstants.com/media/sounds/flex.mp3"
-// Add more up to 67+
-};
-
-function play(name){if(sounds[name]) new Audio(sounds[name]).play();}
-
-// LOAD SOUNDBOARD
-const sb=document.getElementById("soundboard");
-for(let key in sounds){
-    const btn=document.createElement("button");
-    btn.innerText=key.toUpperCase();
-    btn.onclick=()=>play(key);
-    sb.appendChild(btn);
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
 }
 </script>
 </body>
