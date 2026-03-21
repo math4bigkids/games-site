@@ -1,129 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ultimate Games Hub</title>
-
+    <title>Ultimate Meme Games Hub</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-        }
-
-        header {
-            background: #020617;
-            padding: 15px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-        }
-
-        input {
-            width: 60%;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-        }
-
-        .games {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
-            padding: 20px;
-        }
-
-        .game {
-            background: #1e293b;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .game:hover {
-            transform: scale(1.05);
-        }
-
-        .game img {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-        }
-
-        .game p {
-            padding: 10px;
-        }
+        body {margin:0; font-family:Arial; background:#0f172a; color:white;}
+        header {background:#020617; padding:15px; text-align:center; position:sticky; top:0;}
+        input {width:60%; padding:10px; border-radius:8px; border:none;}
+        .games {display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:15px; padding:20px;}
+        .game {background:#1e293b; border-radius:10px; overflow:hidden; cursor:pointer; transition:.2s;}
+        .game:hover {transform:scale(1.05);}
+        .game img {width:100%; height:120px; object-fit:cover;}
+        .game p {padding:10px; text-align:center; font-weight:bold;}
+        #player {padding:20px;}
+        iframe {width:100%; height:80vh; border:none; border-radius:10px;}
+        .fullscreen-btn {margin-top:10px; padding:10px; background:#22c55e; border:none; border-radius:8px; cursor:pointer;}
+        .soundboard {text-align:center; padding:20px;}
+        .soundboard button {margin:5px; padding:10px; border-radius:8px; border:none; cursor:pointer;}
     </style>
 </head>
-
 <body>
-
 <header>
-    <h1>🎮 Ultimate Games Hub</h1>
+    <h1>🎮 Ultimate Meme Games Hub</h1>
     <input type="text" id="search" placeholder="Search games..." onkeyup="searchGames()">
 </header>
 
 <div class="games" id="gameList"></div>
 
-<h2 style="text-align:center;">🔊 Soundboard</h2>
-<div style="text-align:center;">
-    <button onclick="play('vine')">Vine Boom</button>
-    <button onclick="play('airhorn')">Airhorn</button>
-    <button onclick="play('bruh')">Bruh</button>
-    <button onclick="play('laugh')">Laugh</button>
-    <button onclick="play('wow')">WOW</button>
-    <button onclick="play('boom')">Explosion</button>
-</div>
+<div id="player"></div>
+
+<h2 style="text-align:center;">🔊 Meme Soundboard</h2>
+<div class="soundboard" id="soundboard"></div>
 
 <script>
-// GAME DATABASE (you can grow this to 100s easily)
+// ======= GAMES =======
+// You can add more by copying this format {name,url,img}
 const games = [
     {name:"Slope", url:"https://slopegame.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
     {name:"Retro Bowl", url:"https://retro-bowl.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
     {name:"Golf Orbit", url:"https://golforbit.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
-    {name:"1v1.LOL", url:"https://1v1.lol", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
     {name:"Krunker", url:"https://krunker.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
     {name:"Shell Shockers", url:"https://shellshock.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"1v1.LOL", url:"https://1v1.lol", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
     {name:"Tetris", url:"https://tetris.com/play-tetris", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
-    {name:"2048", url:"https://play2048.co", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"}
+    {name:"2048", url:"https://play2048.co", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Pacman", url:"https://www.retrogames.cc/arcade-games/pacman.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Flappy Bird", url:"https://flappybird.io", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Minesweeper", url:"https://minesweeperonline.com", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Chess", url:"https://www.chess.com/play/online", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Sudoku", url:"https://sudoku.com", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Checkers", url:"https://www.mathsisfun.com/games/checkers.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Pinball", url:"https://www.retrogames.cc/arcade-games/pinball.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Pool", url:"https://8ballpool.com", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Bowling", url:"https://www.retrogames.cc/arcade-games/bowling.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Basketball", url:"https://www.retrogames.cc/arcade-games/basketball.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Golf", url:"https://www.retrogames.cc/arcade-games/golf.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"},
+    {name:"Boxing", url:"https://www.retrogames.cc/arcade-games/boxing.html", img:"https://img.itch.zone/aW1nLzE0NDQzODU.png"}
+    // Add more by copying the object structure above
 ];
 
-// LOAD GAMES
-function loadGames(list) {
-    let html = "";
-    list.forEach(g => {
-        html += `
-        <div class="game" onclick="window.open('${g.url}','_blank')">
-            <img src="${g.img}">
-            <p>${g.name}</p>
-        </div>`;
+// ======= LOAD GAMES =======
+function loadGames(list){
+    let html="";
+    list.forEach(g=>{
+        html+=`<div class="game" onclick="window.open('${g.url}','_blank')">
+                <img src="${g.img}"><p>${g.name}</p></div>`;
     });
-    document.getElementById("gameList").innerHTML = html;
+    document.getElementById("gameList").innerHTML=html;
 }
 
 loadGames(games);
 
-// SEARCH
-function searchGames() {
-    let input = document.getElementById("search").value.toLowerCase();
-    let filtered = games.filter(g => g.name.toLowerCase().includes(input));
+function searchGames(){
+    let input=document.getElementById("search").value.toLowerCase();
+    let filtered=games.filter(g=>g.name.toLowerCase().includes(input));
     loadGames(filtered);
 }
 
-// SOUNDS
-function play(type){
-    let sounds={
-        vine:"https://www.myinstants.com/media/sounds/vine-boom.mp3",
-        airhorn:"https://www.myinstants.com/media/sounds/airhorn.mp3",
-        bruh:"https://www.myinstants.com/media/sounds/movie_1.mp3",
-        laugh:"https://www.myinstants.com/media/sounds/laugh.mp3",
-        wow:"https://www.myinstants.com/media/sounds/wow.mp3",
-        boom:"https://www.myinstants.com/media/sounds/explosion.mp3"
-    };
-    new Audio(sounds[type]).play();
+// ======= GAME PLAYER (optional fullscreen) =======
+function playGame(url){
+    document.getElementById("player").innerHTML=`<iframe src="${url}"></iframe>
+    <br><button class="fullscreen-btn" onclick="goFullscreen()">Fullscreen</button>`;
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+function goFullscreen(){
+    let iframe=document.querySelector("iframe");
+    if(iframe.requestFullscreen){iframe.requestFullscreen();}
+}
+
+// ======= MEME SOUNDS =======
+const sounds={
+    vine:"https://www.myinstants.com/media/sounds/vine-boom.mp3",
+    airhorn:"https://www.myinstants.com/media/sounds/airhorn.mp3",
+    bruh:"https://www.myinstants.com/media/sounds/movie_1.mp3",
+    laugh:"https://www.myinstants.com/media/sounds/laugh.mp3",
+    wow:"https://www.myinstants.com/media/sounds/wow.mp3",
+    boom:"https://www.myinstants.com/media/sounds/explosion.mp3",
+    amongus:"https://www.myinstants.com/media/sounds/among-us.mp3",
+    sadviolin:"https://www.myinstants.com/media/sounds/sad-violin.mp3",
+    oof:"https://www.myinstants.com/media/sounds/oof.mp3",
+    airhorn2:"https://www.myinstants.com/media/sounds/airhorn-2.mp3",
+    sus:"https://www.myinstants.com/media/sounds/sus.mp3",
+    flex:"https://www.myinstants.com/media/sounds/flex.mp3"
+    // Add more up to 67+ by adding new keys here
+};
+
+function play(name){if(sounds[name]) new Audio(sounds[name]).play();}
+
+// LOAD SOUNDBOARD
+const sb=document.getElementById("soundboard");
+for(let key in sounds){
+    const btn=document.createElement("button");
+    btn.innerText=key.toUpperCase();
+    btn.onclick=()=>play(key);
+    sb.appendChild(btn);
 }
 </script>
-
 </body>
 </html>
