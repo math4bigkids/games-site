@@ -1,165 +1,196 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Math Hub trust</title>
+<title>GAMEHUB</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{margin:0;font-family:Arial;background:#0b0c1f;color:white;}
-header{text-align:center;padding:10px;}
-input{padding:10px;border-radius:8px;border:none;width:60%;}
-.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px;}
-.game{background:#1e293b;border-radius:10px;cursor:pointer;overflow:hidden;}
-.game img{width:100%;height:120px;}
-.tabs{display:flex;justify-content:center;flex-wrap:wrap;}
-.tab{margin:5px;padding:10px;background:#1e293b;border-radius:8px;cursor:pointer;}
-.tab.active{background:#22c55e;}
-iframe{width:100%;height:75vh;border:none;border-radius:10px;}
-#player{padding:10px;}
-#gear{position:fixed;top:10px;right:10px;font-size:24px;cursor:pointer;}
-#settings{position:fixed;top:50px;right:10px;background:#111;padding:10px;border-radius:10px;display:none;}
-button{padding:8px;margin:5px;border:none;border-radius:8px;cursor:pointer;}
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+width:70px;
+background:#020617;
+height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding-top:10px;
+}
+.icon{
+margin:15px;
+cursor:pointer;
+font-size:20px;
+opacity:.7;
+}
+.icon:hover{opacity:1;}
+
+/* MAIN */
+.main{
+flex:1;
+padding:15px;
+}
+
+/* SEARCH */
+.search{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+background:#1e293b;
+color:white;
+margin-bottom:20px;
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:15px;
+}
+.card{
+background:#1e293b;
+border-radius:12px;
+overflow:hidden;
+cursor:pointer;
+transition:.2s;
+}
+.card:hover{transform:scale(1.05);}
+.card img{
+width:100%;
+height:100px;
+object-fit:cover;
+}
+.card p{
+text-align:center;
+padding:5px;
+font-size:13px;
+}
+
+/* IFRAME */
+iframe{
+width:100%;
+height:90vh;
+border:none;
+border-radius:10px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="gear" onclick="toggleSettings()">⚙️</div>
-
-<div id="settings">
-<h3>Settings</h3>
-Panic Key:<br><input id="panicKey"><br>
-Panic URL:<br><input id="panicURL"><br>
-<button onclick="toggleSound()">Toggle Sound</button>
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="icon" onclick="showHome()">🏠</div>
+<div class="icon" onclick="showGames()">🎮</div>
+<div class="icon" onclick="showBrowser()">🌐</div>
 </div>
 
-<header>
-<h1>🔥 GOD MODE HUB</h1>
-<input id="search" placeholder="Search games..." onkeyup="searchGames()"><br><br>
-
-<input id="browserInput" placeholder="Search or enter URL">
-<button onclick="openBrowser()">GO</button>
-</header>
-
-<div class="tabs">
-<div class="tab active" onclick="setCat('All',this)">All</div>
-<div class="tab" onclick="setCat('Sports',this)">Sports</div>
-<div class="tab" onclick="setCat('Fun',this)">Fun</div>
-</div>
-
-<div class="games" id="games"></div>
-<div id="player"></div>
-
-<h2 style="text-align:center;">🔊 Soundboard</h2>
-<div id="sounds" style="text-align:center;"></div>
+<!-- MAIN -->
+<div class="main" id="main"></div>
 
 <script>
 
-// SETTINGS
-let soundOn=true;
+// 🔥 PUT YOUR PROXY HERE
+const proxy="https://YOUR-PROXY-URL/service/";
 
-// PANIC BUTTON
-document.addEventListener("keydown",e=>{
-if(e.key===document.getElementById("panicKey").value){
-location.href=document.getElementById("panicURL").value||"https://google.com";
+// ================= HOME =================
+function showHome(){
+document.getElementById("main").innerHTML=`
+<h1>GAMEHUB</h1>
+<p>Ultimate Games + Browser</p>
+`;
 }
-});
+showHome();
 
-// SETTINGS TOGGLE
-function toggleSettings(){
-let s=document.getElementById("settings");
-s.style.display=s.style.display==="block"?"none":"block";
-}
-
-// SOUND TOGGLE
-function toggleSound(){
-soundOn=!soundOn;
-alert("Sound: "+(soundOn?"ON":"OFF"));
-}
-
-// GAMES
-let category="All";
-
+// ================= GAMES =================
 const games=[
-{name:"Basketball Stars",url:"https://www.crazygames.com/embed/basketball-stars",cat:"Sports"},
-{name:"Soccer Skills",url:"https://www.crazygames.com/embed/soccer-skills-world-cup",cat:"Sports"},
-{name:"Football Legends",url:"https://www.crazygames.com/embed/football-legends",cat:"Sports"},
-{name:"Golf Orbit",url:"https://www.crazygames.com/embed/golf-orbit",cat:"Sports"},
-{name:"Retro Bowl",url:"https://www.crazygames.com/embed/retro-bowl",cat:"Sports"},
 
-{name:"Slope",url:"https://www.crazygames.com/embed/slope",cat:"Fun"},
-{name:"Run 3",url:"https://www.crazygames.com/embed/run-3",cat:"Fun"},
-{name:"Subway Surfers",url:"https://www.crazygames.com/embed/subway-surfers",cat:"Fun"},
-{name:"Stickman Hook",url:"https://www.crazygames.com/embed/stickman-hook",cat:"Fun"},
-{name:"FNF",url:"https://www.crazygames.com/embed/friday-night-funkin",cat:"Fun"},
-{name:"Among Us",url:"https://www.crazygames.com/embed/impostor",cat:"Fun"}
+// 🔥 FUN GAMES
+{name:"Slope",url:"https://www.crazygames.com/embed/slope",img:"https://img.crazygames.com/games/slope/cover-1653297102740.png"},
+{name:"Retro Bowl",url:"https://www.crazygames.com/embed/retro-bowl",img:"https://img.crazygames.com/games/retro-bowl/cover-1588767167680.png"},
+{name:"Basketball Stars",url:"https://www.crazygames.com/embed/basketball-stars",img:"https://img.crazygames.com/games/basketball-stars/cover-1588165025964.png"},
+{name:"Soccer Skills",url:"https://www.crazygames.com/embed/soccer-skills-world-cup",img:"https://img.crazygames.com/games/soccer-skills-world-cup/cover-1669802873150.png"},
+{name:"Stickman Hook",url:"https://www.crazygames.com/embed/stickman-hook",img:"https://img.crazygames.com/games/stickman-hook/cover-1643293880622.png"},
+{name:"Subway Surfers",url:"https://www.crazygames.com/embed/subway-surfers",img:"https://img.crazygames.com/games/subway-surfers/cover-1682333601097.png"},
+{name:"Run 3",url:"https://www.crazygames.com/embed/run-3",img:"https://img.crazygames.com/games/run-3/cover-1588164679560.png"},
+{name:"FNF",url:"https://www.crazygames.com/embed/friday-night-funkin",img:"https://img.crazygames.com/games/friday-night-funkin/cover-1616166737121.png"},
+
+// 🔥 FNAF
+{name:"FNAF 1",url:"https://www.crazygames.com/embed/five-nights-at-freddys",img:"https://i.imgur.com/8QZ7Z9y.png"},
+{name:"FNAF 2",url:"https://www.crazygames.com/embed/five-nights-at-freddys-2",img:"https://i.imgur.com/FNAF2.png"},
+{name:"FNAF 3",url:"https://www.crazygames.com/embed/five-nights-at-freddys-3",img:"https://i.imgur.com/FNAF3.png"},
+{name:"FNAF 4",url:"https://www.crazygames.com/embed/five-nights-at-freddys-4",img:"https://i.imgur.com/FNAF4.png"},
+
+// 🔥 VEX SERIES
+{name:"Vex 3",url:"https://www.crazygames.com/embed/vex-3",img:"https://img.crazygames.com/games/vex-3/cover-1588164606520.png"},
+{name:"Vex 4",url:"https://www.crazygames.com/embed/vex-4",img:"https://img.crazygames.com/games/vex-4/cover-1588164629286.png"},
+{name:"Vex 5",url:"https://www.crazygames.com/embed/vex-5",img:"https://img.crazygames.com/games/vex-5/cover-1588164647863.png"},
+{name:"Vex 6",url:"https://www.crazygames.com/embed/vex-6",img:"https://img.crazygames.com/games/vex-6/cover-1588164666004.png"},
+
+// 🔥 RANDOM FUN
+{name:"Crossy Road",url:"https://www.crazygames.com/embed/crossy-road",img:"https://img.crazygames.com/games/crossy-road/cover-1588165069413.png"},
+{name:"Temple Run 2",url:"https://www.crazygames.com/embed/temple-run-2",img:"https://img.crazygames.com/games/temple-run-2/cover-1588165001390.png"},
+{name:"Helix Jump",url:"https://www.crazygames.com/embed/helix-jump",img:"https://img.crazygames.com/games/helix-jump/cover-1588165077716.png"},
+{name:"Bottle Flip 3D",url:"https://www.crazygames.com/embed/bottle-flip-3d",img:"https://img.crazygames.com/games/bottle-flip-3d/cover-1588165096866.png"},
+
 ];
 
-// LOAD GAMES
-function loadGames(){
-let html="";
+// LOAD GAME PAGE
+function showGames(){
+let html=`<input class="search" placeholder="Search games..." onkeyup="filter(this.value)">
+<div class="grid">`;
+
 games.forEach(g=>{
-if(category==="All"||g.cat===category){
-html+=`<div class="game" onclick="play('${g.url}')">
-<img src="https://via.placeholder.com/150">
-<p>${g.name}</p></div>`;
-}
+html+=`
+<div class="card" onclick="play('${g.url}')">
+<img src="${g.img}">
+<p>${g.name}</p>
+</div>`;
 });
-document.getElementById("games").innerHTML=html;
-}
-loadGames();
 
-// SEARCH
-function searchGames(){
-let val=document.getElementById("search").value.toLowerCase();
-let html="";
-games.forEach(g=>{
-if(g.name.toLowerCase().includes(val)){
-html+=`<div class="game" onclick="play('${g.url}')">
-<img src="https://via.placeholder.com/150">
-<p>${g.name}</p></div>`;
+html+=`</div>`;
+document.getElementById("main").innerHTML=html;
 }
+
+// FILTER
+function filter(val){
+val=val.toLowerCase();
+let cards=document.querySelectorAll(".card");
+cards.forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(val)?"block":"none";
 });
-document.getElementById("games").innerHTML=html;
 }
 
-// CATEGORY
-function setCat(c,el){
-category=c;
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-el.classList.add("active");
-loadGames();
-}
-
-// PLAYER
+// PLAY GAME
 function play(url){
-document.getElementById("player").innerHTML=`<iframe src="${url}"></iframe>`;
+document.getElementById("main").innerHTML=
+`<button onclick="showGames()">⬅ Back</button>
+<iframe src="${url}"></iframe>`;
 }
 
-// 🌐 PROXY BROWSER (Ultraviolet public proxy)
-function openBrowser(){
-let input=document.getElementById("browserInput").value;
-if(!input.startsWith("http")){
-input="https://duckduckgo.com/?q="+encodeURIComponent(input);
-}
-document.getElementById("player").innerHTML=
-`<iframe src="https://uv.kdhub.dev/service/${btoa(input)}"></iframe>`;
+// ================= BROWSER =================
+function showBrowser(){
+document.getElementById("main").innerHTML=`
+<input class="search" id="url" placeholder="Search or enter URL">
+<button onclick="go()">Go</button>
+<iframe id="frame"></iframe>
+`;
 }
 
-// 🔊 SOUNDS
-const soundList=[
-"https://www.myinstants.com/media/sounds/vine-boom.mp3",
-"https://www.myinstants.com/media/sounds/metal-pipe.mp3",
-"https://www.myinstants.com/media/sounds/airhorn.mp3",
-"https://www.myinstants.com/media/sounds/movie_1.mp3"
-];
-
-const soundDiv=document.getElementById("sounds");
-soundList.forEach(s=>{
-let b=document.createElement("button");
-b.innerText="🔊";
-b.onclick=()=>{if(soundOn)new Audio(s).play();};
-soundDiv.appendChild(b);
-});
+function go(){
+let val=document.getElementById("url").value;
+if(!val.startsWith("http")){
+val="https://duckduckgo.com/?q="+encodeURIComponent(val);
+}
+document.getElementById("frame").src=proxy+btoa(val);
+}
 
 </script>
 
