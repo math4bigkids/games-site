@@ -5,40 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MATH TUTOR</title>
 <style>
+/* ---------- THEME & LAYOUT ---------- */
 body {margin:0;font-family:Arial,sans-serif;background:#0b1a2f;color:white;overflow-x:hidden;}
-#studyOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f5f5;color:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;padding:10px;}
-#studyOverlay h1{font-size:2em;margin-bottom:20px;}
-.browser-bar{display:flex;background:#162a4a;padding:6px;align-items:center;overflow-x:auto;display:none;}
+.menu-btn{padding:12px;background:#3a5fa9;border:none;margin:10px;border-radius:8px;cursor:pointer;color:white;font-size:16px;min-width:120px;}
+iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display:none;}
+
+/* ---------- Browser Bar (Chrome-style) ---------- */
+.browser-bar{display:flex;background:#162a4a;padding:5px;align-items:center;gap:5px;overflow-x:auto;display:none;}
+.browser-bar button{background:#3a5fa9;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;}
 .tabs{display:flex;gap:5px;flex:1;}
-.tab{background:#1e3b6f;padding:5px 12px;border-radius:5px;cursor:pointer;display:flex;white-space:nowrap;}
+.tab{background:#1e3b6f;padding:5px 10px;border-radius:5px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;}
 .tab.active{background:#3a5fa9;}
 .tab-close{margin-left:5px;color:#ff4d4d;cursor:pointer;}
-.address-bar input{width:100%;padding:6px;border:none;border-radius:5px;font-size:14px;}
-iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display:none;}
-.menu-btn{padding:12px;background:#3a5fa9;border:none;margin:10px;border-radius:8px;cursor:pointer;color:white;font-size:16px;min-width:120px;}
+.address-bar{flex:2;}
+.address-bar input{width:100%;padding:6px;border-radius:5px;border:none;font-size:14px;}
+
+/* ---------- Games ---------- */
 .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:10px;}
 .game-item{background:#1e3b6f;border-radius:10px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;padding-bottom:10px;}
 .game-item:hover{transform:scale(1.05);box-shadow:0 0 12px #3a5fa9;}
 .game-item img{width:100%;border-top-left-radius:10px;border-top-right-radius:10px;}
 .game-item .title{font-weight:bold;margin:5px 0;font-size:14px;}
 .game-item .desc{font-size:11px;padding:0 5px;}
+
+/* ---------- Soundboard ---------- */
 .sound-btn{background:#ff4d4d;padding:8px;margin:5px;border:none;border-radius:6px;color:white;cursor:pointer;font-size:14px;}
+
+/* ---------- Settings ---------- */
 #settings{position:absolute;top:50px;right:10px;background:#162a4a;padding:10px;display:none;border-radius:8px;z-index:1000;}
 #settings input[type="text"]{width:100%;margin-bottom:6px;padding:5px;border-radius:4px;border:none;}
 #settings label{font-size:14px;}
 #settings button{margin-top:6px;padding:6px 12px;border-radius:5px;border:none;background:#3a5fa9;color:white;cursor:pointer;}
+
+/* ---------- AI Chat ---------- */
 #chatBox{height:200px;overflow-y:auto;background:#1e3b6f;padding:5px;border-radius:5px;margin-bottom:5px;}
 #chatInput{width:70%;padding:5px;font-size:14px;}
 </style>
 </head>
 <body>
 
-<!-- Study Overlay -->
-<div id="studyOverlay">
-  <h1>Algebra Practice</h1>
-</div>
-
-<!-- Start Page -->
+<!-- START PAGE -->
 <div id="startPage" style="text-align:center;margin-top:50px;">
   <h1>MATH TUTOR</h1>
   <button class="menu-btn" onclick="goSection('games')">🎮 Games</button>
@@ -47,8 +53,10 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display
   <button class="menu-btn" onclick="goSection('browser')">🌐 Proxee</button>
 </div>
 
-<!-- Browser Bar -->
+<!-- Browser (Chrome-style) -->
 <div class="browser-bar" id="browserBar">
+  <button onclick="goBack()">◀</button>
+  <button onclick="goForward()">▶</button>
   <div class="tabs" id="tabs"></div>
   <div class="address-bar">
     <input id="urlInput" placeholder="Search or enter URL..." onkeydown="if(event.key==='Enter') goURL()">
@@ -57,8 +65,10 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display
   <button onclick="toggleSettings()">⚙️</button>
 </div>
 
+<!-- FRAME -->
 <iframe id="frame"></iframe>
 
+<!-- SETTINGS -->
 <div id="settings">
   <input id="panicLink" placeholder="Panic link"><br>
   <label><input type="checkbox" id="audioToggle" checked> Audio</label><br>
@@ -66,36 +76,70 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display
 </div>
 
 <script>
-// Study Overlay
-const overlay=document.getElementById("studyOverlay");
-overlay.addEventListener("dblclick",()=>{overlay.style.display="none";});
-
-// Sections
+// ---------- SECTIONS ----------
 function goSection(section){
   document.getElementById("startPage").style.display="none";
-  document.getElementById("browserBar").style.display=section==='browser'?'flex':'none';
   const f=document.getElementById("frame");
   f.style.display='block';
+  document.getElementById("browserBar").style.display=section==='browser'?'flex':'none';
   if(section==='games') loadGames(f);
   if(section==='sound') loadSoundboard(f);
   if(section==='chat') loadChat(f);
-  if(section==='browser') addTab('https://duckduckgo.com','DuckDuckGo');
+  if(section==='browser') addTab('internal://browserStart','Start Page');
 }
 
-// Tabs
-let tabs=[],activeTab=0;
-function addTab(url="internal://home",title="Home"){tabs.push({url,title}); renderTabs(); switchTab(tabs.length-1);}
-function renderTabs(){const c=document.getElementById("tabs"); c.innerHTML=""; tabs.forEach((t,i)=>{const el=document.createElement("div"); el.className="tab"+(i===activeTab?" active":""); el.innerHTML=t.title+`<span class="tab-close" onclick="closeTab(event,${i})">x</span>`; el.onclick=()=>switchTab(i); c.appendChild(el);});}
+// ---------- TABS ----------
+let tabs=[],activeTab=0,historyMap={};
+function addTab(url="internal://home",title="New Tab"){
+  tabs.push({url,title});
+  historyMap[tabs.length-1]=[url];
+  renderTabs();
+  switchTab(tabs.length-1);
+}
+function renderTabs(){
+  const c=document.getElementById("tabs"); c.innerHTML="";
+  tabs.forEach((t,i)=>{
+    const el=document.createElement("div");
+    el.className="tab"+(i===activeTab?" active":"");
+    el.innerHTML=`${t.title}<span class="tab-close" onclick="closeTab(event,${i})">x</span>`;
+    el.onclick=()=>switchTab(i);
+    c.appendChild(el);
+  });
+}
 function switchTab(i){activeTab=i; renderTabs(); loadPage(tabs[i].url);}
-function closeTab(e,i){e.stopPropagation(); tabs.splice(i,1); if(tabs.length===0) addTab(); else switchTab(Math.max(0,i-1));}
+function closeTab(e,i){e.stopPropagation(); tabs.splice(i,1); delete historyMap[i]; if(tabs.length===0) addTab(); else switchTab(Math.max(0,i-1));}
 
-// URL
-function goURL(){let val=document.getElementById("urlInput").value; if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val); else if(!val.startsWith("http")) val="https://"+val; tabs[activeTab].url=val; loadPage(val);}
+// ---------- BROWSER NAV ----------
+function goURL(){
+  let val=document.getElementById("urlInput").value;
+  if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val);
+  else if(!val.startsWith("http")) val="https://"+val;
+  tabs[activeTab].url=val;
+  historyMap[activeTab].push(val);
+  loadPage(val);
+}
+function goBack(){
+  if(historyMap[activeTab].length>1){
+    historyMap[activeTab].pop();
+    tabs[activeTab].url = historyMap[activeTab][historyMap[activeTab].length-1];
+    loadPage(tabs[activeTab].url);
+  }
+}
+function goForward(){
+  // Simple version, needs stack for redo
+  alert("Forward button works when implemented with history stack.");
+}
+function loadPage(url){
+  const f=document.getElementById("frame");
+  if(url==='internal://browserStart'){
+    f.srcdoc=`<div style="padding:20px;text-align:center;color:white;">
+      <h2>Welcome to Proxee!</h2>
+      <p>Type a site or search above to start browsing.</p>
+    </div>`;
+  } else f.src=url;
+}
 
-// Load Pages
-function loadPage(url){const f=document.getElementById("frame"); if(url.startsWith("internal://")){f.srcdoc=`<div style="text-align:center;margin-top:50px;"><h1>MATH TUTOR</h1></div>`;} else f.src=url;}
-
-// Games
+// ---------- GAMES ----------
 function loadGames(f){
   const categories=['Action','Driving','Sports','Puzzle','Arcade'];
   let html=`<div style="padding:10px;">`;
@@ -103,7 +147,7 @@ function loadGames(f){
     html+=`<h2>${cat}</h2><div class="game-grid">`;
     for(let i=1;i<=50;i++){
       const gameURL="https://www.crazygames.com/embed/"+cat.toLowerCase()+"-"+i;
-      html+=`<div class="game-item" onclick="launchGame('${gameURL}',true)">
+      html+=`<div class="game-item" onclick="launchGame('${gameURL}')">
         <img src="https://via.placeholder.com/140x100?text=${cat}+Game+${i}" alt="">
         <div class="title">${cat} Game ${i}</div>
         <div class="desc">Fun ${cat.toLowerCase()} game #${i}!</div>
@@ -114,8 +158,9 @@ function loadGames(f){
   html+=`<button onclick="goSection('start')">⬅ Back</button></div>`;
   f.srcdoc=html;
 }
+function launchGame(url){document.getElementById("frame").src=url;}
 
-// Soundboard
+// ---------- SOUNDBOARD ----------
 function loadSoundboard(f){
   f.srcdoc=`<div style="padding:20px;"><h2>🔊 Soundboard</h2>
     <button class="sound-btn" onclick="playSound('https://www.myinstants.com/media/sounds/vine-boom.mp3')">Vine Boom</button>
@@ -123,8 +168,9 @@ function loadSoundboard(f){
     <button class="sound-btn" onclick="playSound('https://www.myinstants.com/media/sounds/fart.mp3')">Fart</button><br><br>
     <button onclick="goSection('start')">⬅ Back</button></div>`;
 }
+function playSound(url){if(localStorage.getItem("audio")==="false") return; new Audio(url).play();}
 
-// Chat
+// ---------- AI CHAT ----------
 function loadChat(f){
   f.srcdoc=`<div style="padding:10px;">
     <h2>🤖 AI Chat</h2>
@@ -134,44 +180,30 @@ function loadChat(f){
     <button onclick="goSection('start')">⬅ Back</button>
   </div>`;
 }
-
-// Chat Send (connect to your backend)
 async function chatSend(){
   const doc=document.getElementById("frame").contentWindow.document;
   const input=doc.getElementById("chatInput");
   const box=doc.getElementById("chatBox");
-  const userMsg = input.value.trim();
+  const userMsg=input.value.trim();
   if(!userMsg) return;
-  box.innerHTML += `<div style="margin:5px 0;"><b>You:</b> ${userMsg}</div>`;
-  input.value="";
-  box.scrollTop = box.scrollHeight;
-
-  try {
-    const res = await fetch('https://YOUR-REPLIT-BACKEND-URL/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({message: userMsg})
+  box.innerHTML+=`<div><b>You:</b> ${userMsg}</div>`;
+  input.value=""; box.scrollTop=box.scrollHeight;
+  try{
+    const res=await fetch('https://YOUR-REPLIT-BACKEND-URL/chat',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message:userMsg})
     });
-    const data = await res.json();
-    box.innerHTML += `<div style="margin:5px 0;"><b>AI:</b> ${data.answer}</div>`;
-    box.scrollTop = box.scrollHeight;
-  } catch(err){
-    box.innerHTML += `<div style="margin:5px 0;"><b>AI:</b> Error fetching answer</div>`;
-    box.scrollTop = box.scrollHeight;
-  }
+    const data=await res.json();
+    box.innerHTML+=`<div><b>AI:</b> ${data.answer}</div>`;
+    box.scrollTop=box.scrollHeight;
+  } catch(err){box.innerHTML+=`<div><b>AI:</b> Error fetching answer</div>`;}
 }
 
-// Launch Game
-function launchGame(url,iframeSafe){document.getElementById("frame").src=url;}
-
-// Sound
-function playSound(url){if(localStorage.getItem("audio")==="false") return; new Audio(url).play();}
-
-// Settings
+// ---------- SETTINGS ----------
 function toggleSettings(){const s=document.getElementById("settings"); s.style.display=s.style.display==="block"?"none":"block";}
 function saveSettings(){localStorage.setItem("panic",document.getElementById("panicLink").value); localStorage.setItem("audio",document.getElementById("audioToggle").checked); alert("Saved");}
 
-// Panic
+// ---------- PANIC ----------
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const link=localStorage.getItem("panic"); if(link) window.location.href=link;}});
 </script>
 </body>
