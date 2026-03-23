@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Math hub</title>
-
+<title>Backyard Boys Hub INSANE</title>
 <style>
 /* ---------- THEME ---------- */
 body {margin:0;font-family:Arial,sans-serif;background:#0b1a2f;color:white;}
@@ -27,10 +26,28 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
 #settings input[type="text"]{width:100%;margin-bottom:6px;padding:5px;border-radius:4px;border:none;}
 #settings label{font-size:14px;}
 #settings button{margin-top:6px;padding:6px 12px;border-radius:5px;border:none;background:#3a5fa9;color:white;cursor:pointer;}
+/* ---------- STUDY OVERLAY ---------- */
+#studyOverlay{
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:#f5f5f5; color:#000; z-index:9999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:Arial, sans-serif; text-align:center;
+  cursor:pointer;
+}
+#studyOverlay h1{font-size:2em;margin-bottom:20px;}
+#studyOverlay p{margin:5px;font-size:1.2em;}
 </style>
 </head>
-
 <body>
+
+<!-- STUDY MODE OVERLAY -->
+<div id="studyOverlay">
+  <h1>Algebra Practice</h1>
+  <p>Solve: 12 × 8 = ?</p>
+  <p>Graph y = 2x + 3</p>
+  <p>Double-click anywhere to continue...</p>
+</div>
 
 <div class="browser-bar">
   <div class="tabs" id="tabs"></div>
@@ -50,62 +67,26 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
 </div>
 
 <script>
+/* ---------- STUDY OVERLAY ---------- */
+const overlay=document.getElementById("studyOverlay");
+overlay.addEventListener("dblclick",()=>{overlay.style.display="none";});
+
 /* ---------- TABS ---------- */
 let tabs=[],activeTab=0;
-
-function addTab(url="internal://home",title="Home"){
-  tabs.push({url,title});
-  renderTabs();
-  switchTab(tabs.length-1);
-}
-function renderTabs(){
-  const c=document.getElementById("tabs"); c.innerHTML="";
-  tabs.forEach((t,i)=>{
-    const el=document.createElement("div");
-    el.className="tab"+(i===activeTab?" active":"");
-    el.innerHTML=t.title+`<span class="tab-close" onclick="closeTab(event,${i})">x</span>`;
-    el.onclick=()=>switchTab(i);
-    c.appendChild(el);
-  });
-}
-function switchTab(i){
-  activeTab=i;
-  renderTabs();
-  loadPage(tabs[i].url);
-}
-function closeTab(e,i){
-  e.stopPropagation();
-  tabs.splice(i,1);
-  if(tabs.length===0) addTab();
-  else switchTab(Math.max(0,i-1));
-}
+function addTab(url="internal://home",title="Home"){tabs.push({url,title}); renderTabs(); switchTab(tabs.length-1);}
+function renderTabs(){const c=document.getElementById("tabs"); c.innerHTML=""; tabs.forEach((t,i)=>{const el=document.createElement("div"); el.className="tab"+(i===activeTab?" active":""); el.innerHTML=t.title+`<span class="tab-close" onclick="closeTab(event,${i})">x</span>`; el.onclick=()=>switchTab(i); c.appendChild(el);});}
+function switchTab(i){activeTab=i; renderTabs(); loadPage(tabs[i].url);}
+function closeTab(e,i){e.stopPropagation(); tabs.splice(i,1); if(tabs.length===0) addTab(); else switchTab(Math.max(0,i-1));}
 
 /* ---------- URL ---------- */
-function goURL(){
-  let val=document.getElementById("urlInput").value;
-  if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val);
-  else if(!val.startsWith("http")) val="https://"+val;
-  tabs[activeTab].url=val;
-  loadPage(val);
-}
+function goURL(){let val=document.getElementById("urlInput").value; if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val); else if(!val.startsWith("http")) val="https://"+val; tabs[activeTab].url=val; loadPage(val);}
 
 /* ---------- PAGE LOADER ---------- */
 function loadPage(url){
   const f=document.getElementById("frame");
   if(url.startsWith("internal://")){
     const p=url.replace("internal://","");
-    /* HOME */
-    if(p==="home"){
-      f.srcdoc=`
-      <div style="text-align:center;margin-top:50px;">
-        <h1>Backyard Boys Hub</h1>
-        <button class="menu-btn" onclick="parent.nav('games')">🎮 Games</button>
-        <button class="menu-btn" onclick="parent.nav('sound')">🔊 Soundboard</button>
-        <button class="menu-btn" onclick="parent.nav('chat')">🤖 AI Chat</button>
-      </div>`;
-    }
-
-    /* GAMES */
+    if(p==="home"){f.srcdoc=`<div style="text-align:center;margin-top:50px;"><h1>Backyard Boys Hub</h1><button class="menu-btn" onclick="parent.nav('games')">🎮 Games</button><button class="menu-btn" onclick="parent.nav('sound')">🔊 Soundboard</button><button class="menu-btn" onclick="parent.nav('chat')">🤖 AI Chat</button></div>`;}
     if(p==="games"){
       f.srcdoc=`
       <div style="padding:20px;">
@@ -126,13 +107,7 @@ function loadPage(url){
             <div class="title">Moto X3M</div>
             <div class="desc">Extreme bike stunts and epic jumps!</div>
           </div>
-          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/rooftop-snipers', true)">
-            <img src="https://static.crazygames.com/games/rooftop-snipers/cover.jpg" alt="">
-            <div class="title">Rooftop Snipers</div>
-            <div class="desc">Shoot your opponent from rooftops — fast and fun!</div>
-          </div>
         </div>
-
         <h2>🏎️ Driving / Racing</h2>
         <div class="game-grid">
           <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/drive-mad', true)">
@@ -140,13 +115,7 @@ function loadPage(url){
             <div class="title">Drive Mad</div>
             <div class="desc">Speed, crashes, and epic driving fun!</div>
           </div>
-          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/madalin-stunt-cars-2', true)">
-            <img src="https://static.crazygames.com/games/madalin-stunt-cars-2/cover.jpg" alt="">
-            <div class="title">Madalin Stunt Cars 2</div>
-            <div class="desc">Drive amazing cars and perform insane stunts!</div>
-          </div>
         </div>
-
         <h2>⚽ Sports</h2>
         <div class="game-grid">
           <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/basketball-stars', true)">
@@ -154,13 +123,7 @@ function loadPage(url){
             <div class="title">Basketball Stars</div>
             <div class="desc">Shoot hoops fast and become MVP!</div>
           </div>
-          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/soccer-physics', true)">
-            <img src="https://static.crazygames.com/games/soccer-physics/cover.jpg" alt="">
-            <div class="title">Soccer Physics</div>
-            <div class="desc">Funny, chaotic soccer matches for all ages!</div>
-          </div>
         </div>
-
         <h2>🧩 Puzzle / Strategy</h2>
         <div class="game-grid">
           <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/2048', true)">
@@ -168,104 +131,28 @@ function loadPage(url){
             <div class="title">2048</div>
             <div class="desc">Slide tiles and reach 2048!</div>
           </div>
-          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/sudoku', true)">
-            <img src="https://static.crazygames.com/games/sudoku/cover.jpg" alt="">
-            <div class="title">Sudoku</div>
-            <div class="desc">Classic puzzle game — challenge your brain!</div>
-          </div>
         </div>
-
         <button onclick="parent.nav('home')">⬅ Back</button>
       </div>`;
     }
-
-    /* SOUND */
     if(p==="sound"){
-      f.srcdoc=`
-      <div style="padding:20px;">
-        <h2>🔊 Soundboard</h2>
-        <button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/vine-boom.mp3')">Vine Boom</button>
-        <button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/airhorn.mp3')">Airhorn</button>
-        <button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/fart.mp3')">Fart</button>
-        <br><br>
-        <button onclick="parent.nav('home')">⬅ Back</button>
-      </div>`;
+      f.srcdoc=`<div style="padding:20px;"><h2>🔊 Soundboard</h2><button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/vine-boom.mp3')">Vine Boom</button><button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/airhorn.mp3')">Airhorn</button><button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/fart.mp3')">Fart</button><br><br><button onclick="parent.nav('home')">⬅ Back</button></div>`;
     }
-
-    /* CHAT */
     if(p==="chat"){
-      f.srcdoc=`
-      <div style="padding:20px;">
-        <h2>🤖 AI Chat</h2>
-        <div id="chatBox" style="height:200px;overflow-y:auto;background:#1e3b6f;padding:5px;border-radius:5px;margin-bottom:5px;"></div>
-        <input id="chatInput" style="width:70%;padding:5px;">
-        <button onclick="parent.chatSend()">Send</button>
-        <button onclick="parent.nav('home')">⬅ Back</button>
-      </div>`;
+      f.srcdoc=`<div style="padding:20px;"><h2>🤖 AI Chat</h2><div id="chatBox" style="height:200px;overflow-y:auto;background:#1e3b6f;padding:5px;border-radius:5px;margin-bottom:5px;"></div><input id="chatInput" style="width:70%;padding:5px;"><button onclick="parent.chatSend()">Send</button><button onclick="parent.nav('home')">⬅ Back</button></div>`;
     }
-
-  } else {
-    f.src=url;
-  }
+  } else f.src=url;
 }
 
 /* ---------- NAV ---------- */
-function nav(p){
-  tabs[activeTab].url="internal://"+p;
-  loadPage("internal://"+p);
-}
-
-/* ---------- GAME LAUNCH ---------- */
-function launchGame(url,iframeSafe){
-  if(iframeSafe){
-    tabs[activeTab].url=url;
-    loadPage(url);
-  } else {
-    addTab(url,url.split('/').pop());
-  }
-}
-
-/* ---------- SOUND ---------- */
-function playSound(url){
-  if(localStorage.getItem("audio")==="false") return;
-  new Audio(url).play();
-}
-
-/* ---------- CHAT ---------- */
-function chatSend(){
-  const doc=document.getElementById("frame").contentWindow.document;
-  const input=doc.getElementById("chatInput");
-  const box=doc.getElementById("chatBox");
-  if(!input.value) return;
-  box.innerHTML+="<div>You: "+input.value+"</div>";
-  const replies=["W","No way 😂","Crazy","Fr","LOL","That’s wild"];
-  const r=replies[Math.floor(Math.random()*replies.length)];
-  setTimeout(()=>{ box.innerHTML+="<div>AI: "+r+"</div>"; },500);
-  input.value="";
-}
-
-/* ---------- SETTINGS ---------- */
-function toggleSettings(){
-  const s=document.getElementById("settings");
-  s.style.display=s.style.display==="block"?"none":"block";
-}
-function saveSettings(){
-  localStorage.setItem("panic",document.getElementById("panicLink").value);
-  localStorage.setItem("audio",document.getElementById("audioToggle").checked);
-  alert("Saved");
-}
-
-/* ---------- PANIC BUTTON ---------- */
-document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){
-    const link=localStorage.getItem("panic");
-    if(link) window.location.href=link;
-  }
-});
-
-/* ---------- INIT ---------- */
+function nav(p){tabs[activeTab].url="internal://"+p; loadPage("internal://"+p);}
+function launchGame(url,iframeSafe){if(iframeSafe){tabs[activeTab].url=url; loadPage(url);} else {addTab(url,url.split('/').pop());}}
+function playSound(url){if(localStorage.getItem("audio")==="false") return; new Audio(url).play();}
+function chatSend(){const doc=document.getElementById("frame").contentWindow.document; const input=doc.getElementById("chatInput"); const box=doc.getElementById("chatBox"); if(!input.value) return; box.innerHTML+="<div>You: "+input.value+"</div>"; const replies=["W","No way 😂","Crazy","Fr","LOL","That’s wild"]; const r=replies[Math.floor(Math.random()*replies.length)]; setTimeout(()=>{ box.innerHTML+="<div>AI: "+r+"</div>"; },500); input.value="";}
+function toggleSettings(){const s=document.getElementById("settings"); s.style.display=s.style.display==="block"?"none":"block";}
+function saveSettings(){localStorage.setItem("panic",document.getElementById("panicLink").value); localStorage.setItem("audio",document.getElementById("audioToggle").checked); alert("Saved");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const link=localStorage.getItem("panic"); if(link) window.location.href=link;}});
 window.onload=()=>addTab();
 </script>
-
 </body>
 </html>
