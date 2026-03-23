@@ -1,52 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>GAMEHUB</title>
+<title>Math Hub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#0f172a;
-color:white;
-display:flex;
-}
+body{margin:0;font-family:Arial;background:#0f172a;color:white;display:flex}
 
 /* SIDEBAR */
 .sidebar{
-width:70px;
-background:#020617;
-height:100vh;
-display:flex;
-flex-direction:column;
-align-items:center;
-padding-top:10px;
+width:70px;background:#020617;height:100vh;
+display:flex;flex-direction:column;align-items:center;padding-top:10px;
 }
-.icon{
-margin:15px;
-cursor:pointer;
-font-size:20px;
-opacity:.7;
-}
-.icon:hover{opacity:1;}
+.icon{margin:15px;font-size:20px;cursor:pointer;opacity:.7}
+.icon:hover{opacity:1}
 
 /* MAIN */
-.main{
-flex:1;
-padding:15px;
-}
-
-/* SEARCH */
-.search{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:none;
-background:#1e293b;
-color:white;
-margin-bottom:20px;
-}
+.main{flex:1;padding:15px}
 
 /* GRID */
 .grid{
@@ -55,130 +25,112 @@ grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
 gap:15px;
 }
 .card{
-background:#1e293b;
-border-radius:12px;
-overflow:hidden;
-cursor:pointer;
-transition:.2s;
+background:#1e293b;border-radius:12px;
+padding:10px;text-align:center;
+cursor:pointer;transition:.2s;
 }
-.card:hover{transform:scale(1.05);}
-.card img{
-width:100%;
-height:100px;
-object-fit:cover;
-}
-.card p{
-text-align:center;
-padding:5px;
-font-size:13px;
+.card:hover{transform:scale(1.05)}
+
+/* SOUNDBOARD */
+.sound{
+width:70px;height:70px;border-radius:50%;
+background:red;display:flex;
+align-items:center;justify-content:center;
+cursor:pointer;font-size:12px;text-align:center;
 }
 
-/* IFRAME */
-iframe{
-width:100%;
-height:90vh;
-border:none;
-border-radius:10px;
-}
+/* BROWSER */
+iframe{width:100%;height:90vh;border:none;border-radius:10px}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 <div class="icon" onclick="showHome()">🏠</div>
 <div class="icon" onclick="showGames()">🎮</div>
 <div class="icon" onclick="showBrowser()">🌐</div>
+<div class="icon" onclick="showSound()">🔊</div>
 </div>
 
-<!-- MAIN -->
 <div class="main" id="main"></div>
 
 <script>
 
-// 🔥 PUT YOUR PROXY HERE
+// 🔥 PROXY
 const proxy="https://uv.kdhub.dev/service/";
 
 // ================= HOME =================
 function showHome(){
-document.getElementById("main").innerHTML=`
-<h1>GAMEHUB</h1>
-<p>Ultimate Games + Browser</p>
-`;
+main.innerHTML=`<h1>Math Hub</h1><p>Games + Browser + Soundboard</p>`;
 }
 showHome();
 
 // ================= GAMES =================
-const games=[
+const categories = {
 
-// 🔥 FUN GAMES
-{name:"Slope",url:"https://www.crazygames.com/embed/slope",img:"https://img.crazygames.com/games/slope/cover-1653297102740.png"},
-{name:"Retro Bowl",url:"https://www.crazygames.com/embed/retro-bowl",img:"https://img.crazygames.com/games/retro-bowl/cover-1588767167680.png"},
-{name:"Basketball Stars",url:"https://www.crazygames.com/embed/basketball-stars",img:"https://img.crazygames.com/games/basketball-stars/cover-1588165025964.png"},
-{name:"Soccer Skills",url:"https://www.crazygames.com/embed/soccer-skills-world-cup",img:"https://img.crazygames.com/games/soccer-skills-world-cup/cover-1669802873150.png"},
-{name:"Stickman Hook",url:"https://www.crazygames.com/embed/stickman-hook",img:"https://img.crazygames.com/games/stickman-hook/cover-1643293880622.png"},
-{name:"Subway Surfers",url:"https://www.crazygames.com/embed/subway-surfers",img:"https://img.crazygames.com/games/subway-surfers/cover-1682333601097.png"},
-{name:"Run 3",url:"https://www.crazygames.com/embed/run-3",img:"https://img.crazygames.com/games/run-3/cover-1588164679560.png"},
-{name:"FNF",url:"https://www.crazygames.com/embed/friday-night-funkin",img:"https://img.crazygames.com/games/friday-night-funkin/cover-1616166737121.png"},
+"Horror 👻":[
+{name:"FNAF 1",url:"https://fnaf-online.github.io/fnaf1/"},
+{name:"FNAF 2",url:"https://fnaf-online.github.io/fnaf2/"},
+{name:"FNAF 3",url:"https://fnaf-online.github.io/fnaf3/"},
+{name:"Baldi Basics",url:"https://baldisbasicsgame.io"},
+{name:"Granny",url:"https://grannygame.io"}
+],
 
-// 🔥 FNAF
-{name:"FNAF 1",url:"https://www.crazygames.com/embed/five-nights-at-freddys",img:"https://i.imgur.com/8QZ7Z9y.png"},
-{name:"FNAF 2",url:"https://www.crazygames.com/embed/five-nights-at-freddys-2",img:"https://i.imgur.com/FNAF2.png"},
-{name:"FNAF 3",url:"https://www.crazygames.com/embed/five-nights-at-freddys-3",img:"https://i.imgur.com/FNAF3.png"},
-{name:"FNAF 4",url:"https://www.crazygames.com/embed/five-nights-at-freddys-4",img:"https://i.imgur.com/FNAF4.png"},
+"Trending 🔥":[
+{name:"Slope",url:"https://slopegame.io"},
+{name:"Subway Surfers",url:"https://subwaysurfersgame.io"},
+{name:"Run 3",url:"https://run3.io"},
+{name:"1v1.LOL",url:"https://1v1.lol"}
+],
 
-// 🔥 VEX SERIES
-{name:"Vex 3",url:"https://www.crazygames.com/embed/vex-3",img:"https://img.crazygames.com/games/vex-3/cover-1588164606520.png"},
-{name:"Vex 4",url:"https://www.crazygames.com/embed/vex-4",img:"https://img.crazygames.com/games/vex-4/cover-1588164629286.png"},
-{name:"Vex 5",url:"https://www.crazygames.com/embed/vex-5",img:"https://img.crazygames.com/games/vex-5/cover-1588164647863.png"},
-{name:"Vex 6",url:"https://www.crazygames.com/embed/vex-6",img:"https://img.crazygames.com/games/vex-6/cover-1588164666004.png"},
+"Shooting 🔫":[
+{name:"Krunker",url:"https://krunker.io"},
+{name:"Shell Shockers",url:"https://shellshock.io"}
+],
 
-// 🔥 RANDOM FUN
-{name:"Crossy Road",url:"https://www.crazygames.com/embed/crossy-road",img:"https://img.crazygames.com/games/crossy-road/cover-1588165069413.png"},
-{name:"Temple Run 2",url:"https://www.crazygames.com/embed/temple-run-2",img:"https://img.crazygames.com/games/temple-run-2/cover-1588165001390.png"},
-{name:"Helix Jump",url:"https://www.crazygames.com/embed/helix-jump",img:"https://img.crazygames.com/games/helix-jump/cover-1588165077716.png"},
-{name:"Bottle Flip 3D",url:"https://www.crazygames.com/embed/bottle-flip-3d",img:"https://img.crazygames.com/games/bottle-flip-3d/cover-1588165096866.png"},
+"Sports 🏀":[
+{name:"Basketball Stars",url:"https://basketball-stars.co"},
+{name:"Soccer Skills",url:"https://soccerskills.io"}
+],
 
-];
+"Driving 🚗":[
+{name:"Drift Hunters",url:"https://drifthunters.io"},
+{name:"Moto X3M",url:"https://motox3m.co"}
+]
 
-// LOAD GAME PAGE
+};
+
 function showGames(){
-let html=`<input class="search" placeholder="Search games..." onkeyup="filter(this.value)">
-<div class="grid">`;
+let html="<h1>Games</h1>";
 
-games.forEach(g=>{
-html+=`
-<div class="card" onclick="play('${g.url}')">
-<img src="${g.img}">
-<p>${g.name}</p>
-</div>`;
+Object.keys(categories).forEach(cat=>{
+html+=`<h2>${cat}</h2><div class="grid">`;
+
+categories[cat].forEach(g=>{
+html+=`<div class="card" onclick="play('${g.url}')">${g.name}</div>`;
 });
 
-html+=`</div>`;
-document.getElementById("main").innerHTML=html;
-}
-
-// FILTER
-function filter(val){
-val=val.toLowerCase();
-let cards=document.querySelectorAll(".card");
-cards.forEach(c=>{
-c.style.display=c.innerText.toLowerCase().includes(val)?"block":"none";
+html+="</div>";
 });
+
+main.innerHTML=html;
 }
 
-// PLAY GAME
+// FULLSCREEN GAME (WORKS BETTER)
 function play(url){
-document.getElementById("main").innerHTML=
-`<button onclick="showGames()">⬅ Back</button>
-<iframe src="${url}"></iframe>`;
+let win=window.open();
+win.document.write(`
+<style>body{margin:0}iframe{width:100%;height:100%;border:none}</style>
+<iframe src="${url}"></iframe>
+`);
 }
 
 // ================= BROWSER =================
 function showBrowser(){
-document.getElementById("main").innerHTML=`
-<input class="search" id="url" placeholder="Search or enter URL">
+main.innerHTML=`
+<h2>Browser</h2>
+<input id="url" placeholder="Search or URL" style="width:80%;padding:10px;">
 <button onclick="go()">Go</button>
 <iframe id="frame"></iframe>
 `;
@@ -186,10 +138,39 @@ document.getElementById("main").innerHTML=`
 
 function go(){
 let val=document.getElementById("url").value;
+
 if(!val.startsWith("http")){
 val="https://duckduckgo.com/?q="+encodeURIComponent(val);
 }
+
 document.getElementById("frame").src=proxy+btoa(val);
+}
+
+// ================= SOUNDBOARD =================
+function showSound(){
+main.innerHTML="<h1>Soundboard</h1><div class='grid' id='sounds'></div>";
+
+const sounds={
+"Boom":"https://www.myinstants.com/media/sounds/vine-boom.mp3",
+"Pipe":"https://www.myinstants.com/media/sounds/metal-pipe.mp3",
+"Airhorn":"https://www.myinstants.com/media/sounds/airhorn.mp3",
+"Bruh":"https://www.myinstants.com/media/sounds/movie_1.mp3",
+"Goofy":"https://www.myinstants.com/media/sounds/goofy-ahh.mp3",
+"Discord":"https://www.myinstants.com/media/sounds/discord-ping.mp3",
+"Bonk":"https://www.myinstants.com/media/sounds/bonk.mp3",
+"Windows":"https://www.myinstants.com/media/sounds/windows-error.mp3",
+"Rizz":"https://www.myinstants.com/media/sounds/rizz.mp3"
+};
+
+let s=document.getElementById("sounds");
+
+Object.keys(sounds).forEach(name=>{
+let div=document.createElement("div");
+div.className="sound";
+div.innerText=name;
+div.onclick=()=>new Audio(sounds[name]).play();
+s.appendChild(div);
+});
 }
 
 </script>
