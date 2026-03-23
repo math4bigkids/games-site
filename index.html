@@ -3,19 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Backyard Boys Hub</title>
+<title>MATH TUTOR</title>
 <style>
-/* ---------- THEME ---------- */
 body {margin:0;font-family:Arial,sans-serif;background:#0b1a2f;color:white;overflow-x:hidden;}
 #studyOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f5f5;color:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;padding:10px;}
-#studyOverlay h1{font-size:2em;margin-bottom:20px;} #studyOverlay p{margin:5px;font-size:1.2em;}
-.browser-bar{display:flex;background:#162a4a;padding:6px;align-items:center;overflow-x:auto;}
+#studyOverlay h1{font-size:2em;margin-bottom:20px;}
+.browser-bar{display:flex;background:#162a4a;padding:6px;align-items:center;overflow-x:auto;display:none;}
 .tabs{display:flex;gap:5px;flex:1;}
 .tab{background:#1e3b6f;padding:5px 12px;border-radius:5px;cursor:pointer;display:flex;white-space:nowrap;}
 .tab.active{background:#3a5fa9;}
 .tab-close{margin-left:5px;color:#ff4d4d;cursor:pointer;}
 .address-bar input{width:100%;padding:6px;border:none;border-radius:5px;font-size:14px;}
-iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
+iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display:none;}
 .menu-btn{padding:12px;background:#3a5fa9;border:none;margin:10px;border-radius:8px;cursor:pointer;color:white;font-size:16px;min-width:120px;}
 .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:10px;}
 .game-item{background:#1e3b6f;border-radius:10px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;padding-bottom:10px;}
@@ -37,13 +36,19 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
 <!-- Study Overlay -->
 <div id="studyOverlay">
   <h1>Algebra Practice</h1>
-  <p>Solve: 12 × 8 = ?</p>
-  <p>Graph y = 2x + 3</p>
-  <p>Double-click anywhere to continue...</p>
+</div>
+
+<!-- Start Page -->
+<div id="startPage" style="text-align:center;margin-top:50px;">
+  <h1>MATH TUTOR</h1>
+  <button class="menu-btn" onclick="goSection('games')">🎮 Games</button>
+  <button class="menu-btn" onclick="goSection('sound')">🔊 Soundboard</button>
+  <button class="menu-btn" onclick="goSection('chat')">🤖 AI Chat</button>
+  <button class="menu-btn" onclick="goSection('browser')">🌐 Proxee</button>
 </div>
 
 <!-- Browser Bar -->
-<div class="browser-bar" id="browserBar" style="display:none;">
+<div class="browser-bar" id="browserBar">
   <div class="tabs" id="tabs"></div>
   <div class="address-bar">
     <input id="urlInput" placeholder="Search or enter URL..." onkeydown="if(event.key==='Enter') goURL()">
@@ -52,7 +57,7 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
   <button onclick="toggleSettings()">⚙️</button>
 </div>
 
-<iframe id="frame" style="display:none;"></iframe>
+<iframe id="frame"></iframe>
 
 <div id="settings">
   <input id="panicLink" placeholder="Panic link"><br>
@@ -60,45 +65,37 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
   <button onclick="saveSettings()">Save</button>
 </div>
 
-<!-- START PAGE -->
-<div id="startPage" style="text-align:center;margin-top:50px;">
-  <h1>Backyard Boys Hub</h1>
-  <button class="menu-btn" onclick="goSection('games')">🎮 Games</button>
-  <button class="menu-btn" onclick="goSection('sound')">🔊 Soundboard</button>
-  <button class="menu-btn" onclick="goSection('chat')">🤖 AI Chat</button>
-  <button class="menu-btn" onclick="goSection('browser')">🌐 Proxee</button>
-</div>
-
 <script>
-// ---------- Study Overlay ----------
+// Study Overlay
 const overlay=document.getElementById("studyOverlay");
-overlay.addEventListener("dblclick",()=>{overlay.style.display="none";document.getElementById("startPage").style.display="block";});
+overlay.addEventListener("dblclick",()=>{overlay.style.display="none";});
 
-// ---------- Start Page Navigation ----------
+// Sections
 function goSection(section){
   document.getElementById("startPage").style.display="none";
   document.getElementById("browserBar").style.display=section==='browser'?'flex':'none';
-  document.getElementById("frame").style.display=section!=='browser'?'block':'block';
-  if(section==='games') loadGames(document.getElementById("frame"));
-  if(section==='sound') loadSoundboard(document.getElementById("frame"));
-  if(section==='chat') loadChat(document.getElementById("frame"));
+  const f=document.getElementById("frame");
+  f.style.display='block';
+  if(section==='games') loadGames(f);
+  if(section==='sound') loadSoundboard(f);
+  if(section==='chat') loadChat(f);
   if(section==='browser') addTab('https://duckduckgo.com','DuckDuckGo');
 }
 
-// ---------- Tabs ----------
+// Tabs
 let tabs=[],activeTab=0;
 function addTab(url="internal://home",title="Home"){tabs.push({url,title}); renderTabs(); switchTab(tabs.length-1);}
 function renderTabs(){const c=document.getElementById("tabs"); c.innerHTML=""; tabs.forEach((t,i)=>{const el=document.createElement("div"); el.className="tab"+(i===activeTab?" active":""); el.innerHTML=t.title+`<span class="tab-close" onclick="closeTab(event,${i})">x</span>`; el.onclick=()=>switchTab(i); c.appendChild(el);});}
 function switchTab(i){activeTab=i; renderTabs(); loadPage(tabs[i].url);}
 function closeTab(e,i){e.stopPropagation(); tabs.splice(i,1); if(tabs.length===0) addTab(); else switchTab(Math.max(0,i-1));}
 
-// ---------- URL ----------
+// URL
 function goURL(){let val=document.getElementById("urlInput").value; if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val); else if(!val.startsWith("http")) val="https://"+val; tabs[activeTab].url=val; loadPage(val);}
 
-// ---------- Page Loader ----------
-function loadPage(url){const f=document.getElementById("frame"); if(url.startsWith("internal://")){const p=url.replace("internal://","");if(p==="home"){f.srcdoc=`<div style="text-align:center;margin-top:50px;"><h1>Backyard Boys Hub</h1><button class="menu-btn" onclick="goSection('games')">🎮 Games</button><button class="menu-btn" onclick="goSection('sound')">🔊 Soundboard</button><button class="menu-btn" onclick="goSection('chat')">🤖 AI Chat</button></div>`;}} else f.src=url;}
+// Load Pages
+function loadPage(url){const f=document.getElementById("frame"); if(url.startsWith("internal://")){f.srcdoc=`<div style="text-align:center;margin-top:50px;"><h1>MATH TUTOR</h1></div>`;} else f.src=url;}
 
-// ---------- Games Loader ----------
+// Games
 function loadGames(f){
   const categories=['Action','Driving','Sports','Puzzle','Arcade'];
   let html=`<div style="padding:10px;">`;
@@ -118,7 +115,7 @@ function loadGames(f){
   f.srcdoc=html;
 }
 
-// ---------- Soundboard ----------
+// Soundboard
 function loadSoundboard(f){
   f.srcdoc=`<div style="padding:20px;"><h2>🔊 Soundboard</h2>
     <button class="sound-btn" onclick="playSound('https://www.myinstants.com/media/sounds/vine-boom.mp3')">Vine Boom</button>
@@ -127,27 +124,55 @@ function loadSoundboard(f){
     <button onclick="goSection('start')">⬅ Back</button></div>`;
 }
 
-// ---------- AI Chat ----------
+// Chat
 function loadChat(f){
-  f.srcdoc=`<div style="padding:10px;"><h2>🤖 AI Chat</h2>
-    <div id="chatBox"></div>
-    <input id="chatInput"><button onclick="chatSend()">Send</button>
-    <button onclick="goSection('start')">⬅ Back</button></div>`;
+  f.srcdoc=`<div style="padding:10px;">
+    <h2>🤖 AI Chat</h2>
+    <div id="chatBox" style="height:200px;overflow-y:auto;background:#1e3b6f;padding:5px;border-radius:5px;margin-bottom:5px;"></div>
+    <input id="chatInput" style="width:70%;padding:5px;font-size:14px;" placeholder="Ask me anything...">
+    <button onclick="chatSend()">Send</button>
+    <button onclick="goSection('start')">⬅ Back</button>
+  </div>`;
 }
 
-// ---------- Navigation ----------
+// Chat Send (connect to your backend)
+async function chatSend(){
+  const doc=document.getElementById("frame").contentWindow.document;
+  const input=doc.getElementById("chatInput");
+  const box=doc.getElementById("chatBox");
+  const userMsg = input.value.trim();
+  if(!userMsg) return;
+  box.innerHTML += `<div style="margin:5px 0;"><b>You:</b> ${userMsg}</div>`;
+  input.value="";
+  box.scrollTop = box.scrollHeight;
+
+  try {
+    const res = await fetch('https://YOUR-REPLIT-BACKEND-URL/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message: userMsg})
+    });
+    const data = await res.json();
+    box.innerHTML += `<div style="margin:5px 0;"><b>AI:</b> ${data.answer}</div>`;
+    box.scrollTop = box.scrollHeight;
+  } catch(err){
+    box.innerHTML += `<div style="margin:5px 0;"><b>AI:</b> Error fetching answer</div>`;
+    box.scrollTop = box.scrollHeight;
+  }
+}
+
+// Launch Game
 function launchGame(url,iframeSafe){document.getElementById("frame").src=url;}
 
-// ---------- Sound ----------
+// Sound
 function playSound(url){if(localStorage.getItem("audio")==="false") return; new Audio(url).play();}
 
-// ---------- Settings ----------
+// Settings
 function toggleSettings(){const s=document.getElementById("settings"); s.style.display=s.style.display==="block"?"none":"block";}
 function saveSettings(){localStorage.setItem("panic",document.getElementById("panicLink").value); localStorage.setItem("audio",document.getElementById("audioToggle").checked); alert("Saved");}
 
-// ---------- Panic ----------
+// Panic
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const link=localStorage.getItem("panic"); if(link) window.location.href=link;}});
-
 </script>
 </body>
 </html>
