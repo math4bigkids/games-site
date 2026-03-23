@@ -11,27 +11,28 @@ button, .menu-btn, .sound-btn, .tab, .play-btn{font-size:20px;font-weight:bold;p
 button:hover, .menu-btn:hover, .sound-btn:hover, .tab:hover, .play-btn:hover{transform:scale(1.05);box-shadow:0 0 20px #3a5fa9;}
 .menu-btn{background:#3a5fa9;color:white;border:none;margin:20px;min-width:220px;}
 .sound-btn{background:#ff4d4d;color:white;border:none;margin:5px;}
-.tab{background:#1e3b6f;padding:5px 12px;display:flex;align-items:center;white-space:nowrap;}
-.tab.active{background:#3a5fa9;}
-.tab-close{margin-left:8px;color:#ff4d4d;cursor:pointer;font-size:16px;}
-.browser-bar{display:flex;background:#162a4a;padding:6px;align-items:center;gap:5px;overflow-x:auto;display:none;position:relative;}
+.browser-bar{display:flex;background:#1e1e1e;padding:5px 10px;align-items:center;gap:5px;position:relative;}
+.tab{background:#2f2f2f;padding:6px 14px;margin-right:3px;border-top-left-radius:8px;border-top-right-radius:8px;display:flex;align-items:center;white-space:nowrap;color:white;}
+.tab.active{background:#3a3a3a;box-shadow:0 3px 6px rgba(0,0,0,.5);}
+.tab-close{margin-left:6px;color:#ff4d4d;cursor:pointer;font-size:16px;}
+.tabs-container{display:flex;flex-grow:1;overflow-x:auto;}
 .address-bar{flex:2;position:relative;}
-.address-bar input{width:100%;padding:6px;border-radius:5px;border:none;font-size:14px;}
-#suggestions{position:absolute;background:#1e3b6f;width:100%;max-height:200px;overflow-y:auto;border-radius:5px;display:none;z-index:1000;}
-#suggestions div{padding:8px 10px;cursor:pointer;border-bottom:1px solid #3a5fa9;transition:background .2s;}
+.address-bar input{width:100%;padding:6px;border-radius:4px;border:none;font-size:14px;}
+#suggestions{position:absolute;background:#2f2f2f;width:100%;max-height:200px;overflow-y:auto;border-radius:5px;display:none;z-index:1000;}
+#suggestions div{padding:8px 10px;cursor:pointer;border-bottom:1px solid #3a3a3a;transition:background .2s;}
 #suggestions div:hover{background:#3a5fa9;}
-iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display:none;}
+iframe{width:100%;height:calc(100vh-50px);border:none;display:none;background:#0b1a2f;}
 #settings{position:absolute;top:50px;right:10px;background:#162a4a;padding:10px;display:none;border-radius:8px;z-index:1000;}
 #settings input[type="text"]{width:100%;margin-bottom:6px;padding:5px;border-radius:4px;border:none;}
 #settings label{font-size:14px;}
 #settings button{margin-top:6px;padding:6px 12px;border-radius:5px;border:none;background:#3a5fa9;color:white;cursor:pointer;}
-.game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:10px;}
-.game-item{background:#1e3b6f;border-radius:10px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;padding-bottom:10px;}
+.game-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;padding:15px;}
+.game-item{background:#2f2f2f;border-radius:10px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;padding-bottom:10px;}
 .game-item:hover{transform:scale(1.05);box-shadow:0 0 12px #3a5fa9;}
 .game-item img{width:100%;border-top-left-radius:10px;border-top-right-radius:10px;}
-.game-item .title{font-weight:bold;margin:5px 0;font-size:14px;}
-.game-item .desc{font-size:11px;padding:0 5px;}
-#chatBox{height:250px;overflow-y:auto;background:#1e3b6f;padding:5px;border-radius:5px;margin-bottom:5px;}
+.game-item .title{font-weight:bold;margin:5px 0;font-size:16px;}
+.game-item .desc{font-size:13px;padding:0 5px;}
+#chatBox{height:250px;overflow-y:auto;background:#2f2f2f;padding:5px;border-radius:5px;margin-bottom:5px;}
 #chatInput{width:70%;padding:6px;font-size:14px;}
 </style>
 </head>
@@ -52,7 +53,7 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display
 <div class="browser-bar" id="browserBar">
   <button onclick="goBack()">◀</button>
   <button onclick="goForward()">▶</button>
-  <div class="tabs" id="tabs"></div>
+  <div class="tabs-container" id="tabs"></div>
   <div class="address-bar">
     <input id="urlInput" placeholder="Search or enter URL..." oninput="showSuggestions(this.value)" onkeydown="if(event.key==='Enter') goURL()">
     <div id="suggestions"></div>
@@ -71,7 +72,7 @@ iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;display
 </div>
 
 <script>
-// ---------- Sections ----------
+// ---------- SECTIONS ----------
 function goSection(section){
   document.getElementById("startPage").style.display="none";
   const f=document.getElementById("frame");
@@ -83,7 +84,7 @@ function goSection(section){
   if(section==='browser') addTab('internal://browserStart','Start Page');
 }
 
-// ---------- Tabs ----------
+// ---------- TABS ----------
 let tabs=[],activeTab=0,historyMap={};
 function addTab(url="internal://home",title="New Tab"){
   tabs.push({url,title});
@@ -104,7 +105,7 @@ function renderTabs(){
 function switchTab(i){activeTab=i; renderTabs(); loadPage(tabs[i].url);}
 function closeTab(e,i){e.stopPropagation(); tabs.splice(i,1); delete historyMap[i]; if(tabs.length===0) addTab(); else switchTab(Math.max(0,i-1));}
 
-// ---------- Browser Navigation ----------
+// ---------- BROWSER NAV ----------
 function goURL(){
   let val=document.getElementById("urlInput").value;
   if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val);
@@ -120,7 +121,7 @@ function goBack(){
     loadPage(tabs[activeTab].url);
   }
 }
-function goForward(){alert("Forward button works when implemented with history stack.");}
+function goForward(){alert("Forward button works with history stack.");}
 function loadPage(url){
   const f=document.getElementById("frame");
   if(url==='internal://browserStart'){
@@ -131,10 +132,10 @@ function loadPage(url){
   } else f.src=url;
 }
 
-// ---------- Search Suggestions ----------
+// ---------- SEARCH SUGGESTIONS ----------
 function showSuggestions(query){
   const sug=document.getElementById("suggestions");
-  if(!query) {sug.style.display="none"; sug.innerHTML=""; return;}
+  if(!query){sug.style.display="none"; sug.innerHTML=""; return;}
   const sampleResults=[
     {title:"DuckDuckGo", url:"https://duckduckgo.com/?q="+encodeURIComponent(query)},
     {title:"Google", url:"https://www.google.com/search?q="+encodeURIComponent(query)},
@@ -152,17 +153,42 @@ function showSuggestions(query){
 }
 document.addEventListener("click",e=>{const sug=document.getElementById("suggestions"); if(!document.getElementById("urlInput").contains(e.target)) sug.style.display="none";});
 
-// ---------- Games ----------
+// ---------- GAMES ----------
 const gamesData = [
+  // ---------- SPORTS ----------
   {category:"Sports",title:"Retro Bowl",desc:"Football fun!",url:"https://www.crazygames.com/game/retro-bowl",img:"https://static.crazygames.com/retro-bowl/cover.jpg"},
   {category:"Sports",title:"Basketball Stars",desc:"Shoot hoops!",url:"https://www.crazygames.com/game/basketball-stars",img:"https://static.crazygames.com/basketball-stars/cover.jpg"},
   {category:"Sports",title:"Soccer Physics",desc:"Fun soccer levels!",url:"https://www.crazygames.com/game/soccer-physics",img:"https://static.crazygames.com/soccer-physics/cover.jpg"},
   {category:"Sports",title:"Golf Orbit",desc:"360° golf madness!",url:"https://www.crazygames.com/game/golf-orbit",img:"https://static.crazygames.com/golf-orbit/cover.jpg"},
+  {category:"Sports",title:"Dodgeball Legends",desc:"Dodge & throw!",url:"https://www.crazygames.com/game/dodgeball-legends",img:"https://static.crazygames.com/dodgeball-legends/cover.jpg"},
+  {category:"Sports",title:"Baseball Fury",desc:"Baseball battles!",url:"https://www.crazygames.com/game/baseball-fury",img:"https://static.crazygames.com/baseball-fury/cover.jpg"},
+  {category:"Sports",title:"Tennis Legends",desc:"Tennis gameplay!",url:"https://www.crazygames.com/game/tennis-legends",img:"https://static.crazygames.com/tennis-legends/cover.jpg"},
+  {category:"Sports",title:"Hockey Heroes",desc:"Ice hockey action!",url:"https://www.crazygames.com/game/hockey-heroes",img:"https://static.crazygames.com/hockey-heroes/cover.jpg"},
+  {category:"Sports",title:"Bowling King",desc:"Bowling tournaments!",url:"https://www.crazygames.com/game/bowling-king",img:"https://static.crazygames.com/bowling-king/cover.jpg"},
+  {category:"Sports",title:"Parkour Sports",desc:"Obstacle races!",url:"https://www.crazygames.com/game/parkour-sports",img:"https://static.crazygames.com/parkour-sports/cover.jpg"},
+  // Add remaining 40+ sports games here similarly
+  // ---------- DRIVING ----------
   {category:"Driving",title:"Moto X3M",desc:"Extreme bike racing!",url:"https://www.crazygames.com/game/moto-x3m",img:"https://static.crazygames.com/moto-x3m/cover.jpg"},
+  {category:"Driving",title:"Madalin Stunt Cars 2",desc:"Stunt cars!",url:"https://www.crazygames.com/game/madalin-stunt-cars-2",img:"https://static.crazygames.com/madalin-stunt-cars-2/cover.jpg"},
+  {category:"Driving",title:"Drift Hunters",desc:"Drift & race!",url:"https://www.crazygames.com/game/drift-hunters",img:"https://static.crazygames.com/drift-hunters/cover.jpg"},
+  {category:"Driving",title:"Traffic Run",desc:"Dodge traffic!",url:"https://www.crazygames.com/game/traffic-run",img:"https://static.crazygames.com/traffic-run/cover.jpg"},
+  {category:"Driving",title:"Uphill Rush",desc:"Hill racing!",url:"https://www.crazygames.com/game/uphill-rush",img:"https://static.crazygames.com/uphill-rush/cover.jpg"},
+  // Add remaining driving games here
+  // ---------- ACTION ----------
   {category:"Action",title:"Rooftop Snipers",desc:"Shoot enemies!",url:"https://www.crazygames.com/game/rooftop-snipers",img:"https://static.crazygames.com/rooftop-snipers/cover.jpg"},
+  {category:"Action",title:"Bullet Force",desc:"Shooting fun!",url:"https://www.crazygames.com/game/bullet-force-multiplayer",img:"https://static.crazygames.com/bullet-force-multiplayer/cover.jpg"},
+  {category:"Action",title:"Stickman Warriors",desc:"Fight & battle!",url:"https://www.crazygames.com/game/stickman-warriors",img:"https://static.crazygames.com/stickman-warriors/cover.jpg"},
+  // Add remaining action games here
+  // ---------- PUZZLE ----------
   {category:"Puzzle",title:"Sugar, Sugar",desc:"Draw lines to guide sugar",url:"https://www.crazygames.com/game/sugar-sugar",img:"https://static.crazygames.com/sugar-sugar/cover.jpg"},
-  {category:"Arcade",title:"Paper.io 2",desc:"Conquer territory!",url:"https://www.crazygames.com/game/paper-io-2",img:"https://static.crazygames.com/paper-io-2/cover.jpg"}
-  // Add more games here up to 50+ per category
+  {category:"Puzzle",title:"Fireboy and Watergirl",desc:"Co-op puzzles!",url:"https://www.crazygames.com/game/fireboy-and-watergirl-1-forest-temple",img:"https://static.crazygames.com/fireboy-and-watergirl-1-forest-temple/cover.jpg"},
+  {category:"Puzzle",title:"Brain Test",desc:"Logic puzzles!",url:"https://www.crazygames.com/game/brain-test",img:"https://static.crazygames.com/brain-test/cover.jpg"},
+  // Add remaining puzzle games here
+  // ---------- ARCADE ----------
+  {category:"Arcade",title:"Paper.io 2",desc:"Conquer territory!",url:"https://www.crazygames.com/game/paper-io-2",img:"https://static.crazygames.com/paper-io-2/cover.jpg"},
+  {category:"Arcade",title:"Slither.io",desc:"Snake style!",url:"https://slither.io",img:"https://slither.io/slither.png"},
+  {category:"Arcade",title:"Agar.io",desc:"Grow & survive!",url:"https://agar.io",img:"https://agar.io/images/agar.png"}
+  // Add remaining arcade games here
 ];
 
 function loadGames(f){
@@ -175,7 +201,7 @@ function loadGames(f){
         <img src="${g.img}" alt="${g.title}">
         <div class="title">${g.title}</div>
         <div class="desc">${g.desc}</div>
-        <button class="play-btn" onclick="launchGame('${g.url}')">Play</button>
+        <button class="play-btn" onclick="window.open('${g.url}','_blank')">Play</button>
       </div>`;
     });
     html+='</div>';
@@ -183,9 +209,8 @@ function loadGames(f){
   html+='<button onclick="goSection(\'start\')">⬅ Back</button></div>';
   f.srcdoc=html;
 }
-function launchGame(url){document.getElementById("frame").src=url;}
 
-// ---------- Soundboard ----------
+// ---------- SOUNDBOARD ----------
 function loadSoundboard(f){
   f.srcdoc=`<div style="padding:20px;"><h2>🔊 Soundboard</h2>
     <button class="sound-btn" onclick="playSound('https://www.myinstants.com/media/sounds/vine-boom.mp3')">Vine Boom</button>
@@ -204,32 +229,4 @@ function loadChat(f){
     <button onclick="goSection('start')">⬅ Back</button>
   </div>`;
 }
-async function chatSend(){
-  const doc=document.getElementById("frame").contentWindow.document;
-  const input=doc.getElementById("chatInput");
-  const box=doc.getElementById("chatBox");
-  const userMsg=input.value.trim();
-  if(!userMsg) return;
-  box.innerHTML+=`<div><b>You:</b> ${userMsg}</div>`;
-  input.value=""; box.scrollTop=box.scrollHeight;
-  try{
-    const res=await fetch('https://YOUR-REPLIT-BACKEND-URL/chat',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({message:userMsg})
-    });
-    const data=await res.json();
-    box.innerHTML+=`<div><b>AI:</b> ${data.answer}</div>`;
-    box.scrollTop=box.scrollHeight;
-  }catch(err){box.innerHTML+=`<div><b>AI:</b> Error fetching answer</div>`;}
-}
-
-// ---------- Settings ----------
-function toggleSettings(){const s=document.getElementById("settings"); s.style.display=s.style.display==="block"?"none":"block";}
-function saveSettings(){localStorage.setItem("panic",document.getElementById("panicLink").value); localStorage.setItem("audio",document.getElementById("audioToggle").checked); alert("Saved");}
-
-// ---------- Panic ----------
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){const link=localStorage.getItem("panic"); if(link) window.location.href=link;}});
-</script>
-
-</body>
-</html>
+async function
