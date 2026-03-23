@@ -1,178 +1,270 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Math Hub</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backyard Boys Hub INSANE</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:white;display:flex}
-
-/* SIDEBAR */
-.sidebar{
-width:70px;background:#020617;height:100vh;
-display:flex;flex-direction:column;align-items:center;padding-top:10px;
-}
-.icon{margin:15px;font-size:20px;cursor:pointer;opacity:.7}
-.icon:hover{opacity:1}
-
-/* MAIN */
-.main{flex:1;padding:15px}
-
-/* GRID */
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-gap:15px;
-}
-.card{
-background:#1e293b;border-radius:12px;
-padding:10px;text-align:center;
-cursor:pointer;transition:.2s;
-}
-.card:hover{transform:scale(1.05)}
-
-/* SOUNDBOARD */
-.sound{
-width:70px;height:70px;border-radius:50%;
-background:red;display:flex;
-align-items:center;justify-content:center;
-cursor:pointer;font-size:12px;text-align:center;
-}
-
-/* BROWSER */
-iframe{width:100%;height:90vh;border:none;border-radius:10px}
+/* ---------- THEME ---------- */
+body {margin:0;font-family:Arial,sans-serif;background:#0b1a2f;color:white;}
+.browser-bar{display:flex;background:#162a4a;padding:6px;align-items:center;}
+.tabs{display:flex;gap:5px;flex:1;overflow-x:auto;}
+.tab{background:#1e3b6f;padding:5px 12px;border-radius:5px;cursor:pointer;display:flex;}
+.tab.active{background:#3a5fa9;}
+.tab-close{margin-left:5px;color:#ff4d4d;cursor:pointer;}
+.address-bar input{width:100%;padding:6px;border:none;border-radius:5px;}
+iframe{width:100%;height:calc(100vh-50px);border:none;background:#0b1a2f;}
+.menu-btn{padding:15px;background:#3a5fa9;border:none;margin:10px;border-radius:8px;cursor:pointer;color:white;font-size:18px;}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px;}
+.game-item{background:#1e3b6f;border-radius:10px;text-align:center;cursor:pointer;transition:transform .2s,background .2s;padding-bottom:10px;}
+.game-item:hover{transform:scale(1.05);background:#3a5fa9;}
+.game-item img{width:100%;border-top-left-radius:10px;border-top-right-radius:10px;}
+.game-item .title{font-weight:bold;margin:5px 0;}
+.game-item .desc{font-size:13px;padding:0 5px;}
+.sound-btn{background:#ff4d4d;padding:10px;margin:5px;border:none;border-radius:6px;color:white;cursor:pointer;}
+#settings{position:absolute;top:50px;right:10px;background:#162a4a;padding:10px;display:none;border-radius:8px;}
+#settings input[type="text"]{width:100%;margin-bottom:6px;padding:5px;border-radius:4px;border:none;}
+#settings label{font-size:14px;}
+#settings button{margin-top:6px;padding:6px 12px;border-radius:5px;border:none;background:#3a5fa9;color:white;cursor:pointer;}
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-<div class="icon" onclick="showHome()">🏠</div>
-<div class="icon" onclick="showGames()">🎮</div>
-<div class="icon" onclick="showBrowser()">🌐</div>
-<div class="icon" onclick="showSound()">🔊</div>
+<div class="browser-bar">
+  <div class="tabs" id="tabs"></div>
+  <div class="address-bar">
+    <input id="urlInput" placeholder="Search or enter URL..." onkeydown="if(event.key==='Enter') goURL()">
+  </div>
+  <button onclick="addTab()">➕</button>
+  <button onclick="toggleSettings()">⚙️</button>
 </div>
 
-<div class="main" id="main"></div>
+<iframe id="frame"></iframe>
+
+<div id="settings">
+  <input id="panicLink" placeholder="Panic link"><br>
+  <label><input type="checkbox" id="audioToggle" checked> Audio</label><br>
+  <button onclick="saveSettings()">Save</button>
+</div>
 
 <script>
+/* ---------- TABS ---------- */
+let tabs=[],activeTab=0;
 
-// 🔥 PROXY
-const proxy="https://uv.kdhub.dev/service/";
-
-// ================= HOME =================
-function showHome(){
-main.innerHTML=`<h1>Math Hub</h1><p>Games + Browser + Soundboard</p>`;
+function addTab(url="internal://home",title="Home"){
+  tabs.push({url,title});
+  renderTabs();
+  switchTab(tabs.length-1);
 }
-showHome();
+function renderTabs(){
+  const c=document.getElementById("tabs"); c.innerHTML="";
+  tabs.forEach((t,i)=>{
+    const el=document.createElement("div");
+    el.className="tab"+(i===activeTab?" active":"");
+    el.innerHTML=t.title+`<span class="tab-close" onclick="closeTab(event,${i})">x</span>`;
+    el.onclick=()=>switchTab(i);
+    c.appendChild(el);
+  });
+}
+function switchTab(i){
+  activeTab=i;
+  renderTabs();
+  loadPage(tabs[i].url);
+}
+function closeTab(e,i){
+  e.stopPropagation();
+  tabs.splice(i,1);
+  if(tabs.length===0) addTab();
+  else switchTab(Math.max(0,i-1));
+}
 
-// ================= GAMES =================
-const categories = {
+/* ---------- URL ---------- */
+function goURL(){
+  let val=document.getElementById("urlInput").value;
+  if(!val.includes(".")) val="https://duckduckgo.com/?q="+encodeURIComponent(val);
+  else if(!val.startsWith("http")) val="https://"+val;
+  tabs[activeTab].url=val;
+  loadPage(val);
+}
 
-"Horror 👻":[
-{name:"FNAF 1",url:"https://fnaf-online.github.io/fnaf1/"},
-{name:"FNAF 2",url:"https://fnaf-online.github.io/fnaf2/"},
-{name:"FNAF 3",url:"https://fnaf-online.github.io/fnaf3/"},
-{name:"Baldi Basics",url:"https://baldisbasicsgame.io"},
-{name:"Granny",url:"https://grannygame.io"}
-],
+/* ---------- PAGE LOADER ---------- */
+function loadPage(url){
+  const f=document.getElementById("frame");
+  if(url.startsWith("internal://")){
+    const p=url.replace("internal://","");
+    /* HOME */
+    if(p==="home"){
+      f.srcdoc=`
+      <div style="text-align:center;margin-top:50px;">
+        <h1>Backyard Boys Hub</h1>
+        <button class="menu-btn" onclick="parent.nav('games')">🎮 Games</button>
+        <button class="menu-btn" onclick="parent.nav('sound')">🔊 Soundboard</button>
+        <button class="menu-btn" onclick="parent.nav('chat')">🤖 AI Chat</button>
+      </div>`;
+    }
 
-"Trending 🔥":[
-{name:"Slope",url:"https://slopegame.io"},
-{name:"Subway Surfers",url:"https://subwaysurfersgame.io"},
-{name:"Run 3",url:"https://run3.io"},
-{name:"1v1.LOL",url:"https://1v1.lol"}
-],
+    /* GAMES */
+    if(p==="games"){
+      f.srcdoc=`
+      <div style="padding:20px;">
+        <h2>🔥 Action</h2>
+        <div class="game-grid">
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/game/slope', false)">
+            <img src="https://static.crazygames.com/games/slope/cover.jpg" alt="">
+            <div class="title">Slope</div>
+            <div class="desc">Fast-paced rolling madness — avoid falling!</div>
+          </div>
+          <div class="game-item" onclick="parent.launchGame('https://www.retrobowl.com/', false)">
+            <img src="https://www.retrobowl.com/images/retrobowl-thumb.jpg" alt="">
+            <div class="title">Retro Bowl</div>
+            <div class="desc">Score touchdowns in this retro football game!</div>
+          </div>
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/moto-x3m', true)">
+            <img src="https://static.crazygames.com/games/moto-x3m/cover.jpg" alt="">
+            <div class="title">Moto X3M</div>
+            <div class="desc">Extreme bike stunts and epic jumps!</div>
+          </div>
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/rooftop-snipers', true)">
+            <img src="https://static.crazygames.com/games/rooftop-snipers/cover.jpg" alt="">
+            <div class="title">Rooftop Snipers</div>
+            <div class="desc">Shoot your opponent from rooftops — fast and fun!</div>
+          </div>
+        </div>
 
-"Shooting 🔫":[
-{name:"Krunker",url:"https://krunker.io"},
-{name:"Shell Shockers",url:"https://shellshock.io"}
-],
+        <h2>🏎️ Driving / Racing</h2>
+        <div class="game-grid">
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/drive-mad', true)">
+            <img src="https://static.crazygames.com/games/drive-mad/cover.jpg" alt="">
+            <div class="title">Drive Mad</div>
+            <div class="desc">Speed, crashes, and epic driving fun!</div>
+          </div>
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/madalin-stunt-cars-2', true)">
+            <img src="https://static.crazygames.com/games/madalin-stunt-cars-2/cover.jpg" alt="">
+            <div class="title">Madalin Stunt Cars 2</div>
+            <div class="desc">Drive amazing cars and perform insane stunts!</div>
+          </div>
+        </div>
 
-"Sports 🏀":[
-{name:"Basketball Stars",url:"https://basketball-stars.co"},
-{name:"Soccer Skills",url:"https://soccerskills.io"}
-],
+        <h2>⚽ Sports</h2>
+        <div class="game-grid">
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/basketball-stars', true)">
+            <img src="https://static.crazygames.com/games/basketball-stars/cover.jpg" alt="">
+            <div class="title">Basketball Stars</div>
+            <div class="desc">Shoot hoops fast and become MVP!</div>
+          </div>
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/soccer-physics', true)">
+            <img src="https://static.crazygames.com/games/soccer-physics/cover.jpg" alt="">
+            <div class="title">Soccer Physics</div>
+            <div class="desc">Funny, chaotic soccer matches for all ages!</div>
+          </div>
+        </div>
 
-"Driving 🚗":[
-{name:"Drift Hunters",url:"https://drifthunters.io"},
-{name:"Moto X3M",url:"https://motox3m.co"}
-]
+        <h2>🧩 Puzzle / Strategy</h2>
+        <div class="game-grid">
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/2048', true)">
+            <img src="https://static.crazygames.com/games/2048/cover.jpg" alt="">
+            <div class="title">2048</div>
+            <div class="desc">Slide tiles and reach 2048!</div>
+          </div>
+          <div class="game-item" onclick="parent.launchGame('https://www.crazygames.com/embed/sudoku', true)">
+            <img src="https://static.crazygames.com/games/sudoku/cover.jpg" alt="">
+            <div class="title">Sudoku</div>
+            <div class="desc">Classic puzzle game — challenge your brain!</div>
+          </div>
+        </div>
 
-};
+        <button onclick="parent.nav('home')">⬅ Back</button>
+      </div>`;
+    }
 
-function showGames(){
-let html="<h1>Games</h1>";
+    /* SOUND */
+    if(p==="sound"){
+      f.srcdoc=`
+      <div style="padding:20px;">
+        <h2>🔊 Soundboard</h2>
+        <button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/vine-boom.mp3')">Vine Boom</button>
+        <button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/airhorn.mp3')">Airhorn</button>
+        <button class="sound-btn" onclick="parent.playSound('https://www.myinstants.com/media/sounds/fart.mp3')">Fart</button>
+        <br><br>
+        <button onclick="parent.nav('home')">⬅ Back</button>
+      </div>`;
+    }
 
-Object.keys(categories).forEach(cat=>{
-html+=`<h2>${cat}</h2><div class="grid">`;
+    /* CHAT */
+    if(p==="chat"){
+      f.srcdoc=`
+      <div style="padding:20px;">
+        <h2>🤖 AI Chat</h2>
+        <div id="chatBox" style="height:200px;overflow-y:auto;background:#1e3b6f;padding:5px;border-radius:5px;margin-bottom:5px;"></div>
+        <input id="chatInput" style="width:70%;padding:5px;">
+        <button onclick="parent.chatSend()">Send</button>
+        <button onclick="parent.nav('home')">⬅ Back</button>
+      </div>`;
+    }
 
-categories[cat].forEach(g=>{
-html+=`<div class="card" onclick="play('${g.url}')">${g.name}</div>`;
+  } else {
+    f.src=url;
+  }
+}
+
+/* ---------- NAV ---------- */
+function nav(p){
+  tabs[activeTab].url="internal://"+p;
+  loadPage("internal://"+p);
+}
+
+/* ---------- GAME LAUNCH ---------- */
+function launchGame(url,iframeSafe){
+  if(iframeSafe){
+    tabs[activeTab].url=url;
+    loadPage(url);
+  } else {
+    addTab(url,url.split('/').pop());
+  }
+}
+
+/* ---------- SOUND ---------- */
+function playSound(url){
+  if(localStorage.getItem("audio")==="false") return;
+  new Audio(url).play();
+}
+
+/* ---------- CHAT ---------- */
+function chatSend(){
+  const doc=document.getElementById("frame").contentWindow.document;
+  const input=doc.getElementById("chatInput");
+  const box=doc.getElementById("chatBox");
+  if(!input.value) return;
+  box.innerHTML+="<div>You: "+input.value+"</div>";
+  const replies=["W","No way 😂","Crazy","Fr","LOL","That’s wild"];
+  const r=replies[Math.floor(Math.random()*replies.length)];
+  setTimeout(()=>{ box.innerHTML+="<div>AI: "+r+"</div>"; },500);
+  input.value="";
+}
+
+/* ---------- SETTINGS ---------- */
+function toggleSettings(){
+  const s=document.getElementById("settings");
+  s.style.display=s.style.display==="block"?"none":"block";
+}
+function saveSettings(){
+  localStorage.setItem("panic",document.getElementById("panicLink").value);
+  localStorage.setItem("audio",document.getElementById("audioToggle").checked);
+  alert("Saved");
+}
+
+/* ---------- PANIC BUTTON ---------- */
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    const link=localStorage.getItem("panic");
+    if(link) window.location.href=link;
+  }
 });
 
-html+="</div>";
-});
-
-main.innerHTML=html;
-}
-
-// FULLSCREEN GAME (WORKS BETTER)
-function play(url){
-let win=window.open();
-win.document.write(`
-<style>body{margin:0}iframe{width:100%;height:100%;border:none}</style>
-<iframe src="${url}"></iframe>
-`);
-}
-
-// ================= BROWSER =================
-function showBrowser(){
-main.innerHTML=`
-<h2>Browser</h2>
-<input id="url" placeholder="Search or URL" style="width:80%;padding:10px;">
-<button onclick="go()">Go</button>
-<iframe id="frame"></iframe>
-`;
-}
-
-function go(){
-let val=document.getElementById("url").value;
-
-if(!val.startsWith("http")){
-val="https://duckduckgo.com/?q="+encodeURIComponent(val);
-}
-
-document.getElementById("frame").src=proxy+btoa(val);
-}
-
-// ================= SOUNDBOARD =================
-function showSound(){
-main.innerHTML="<h1>Soundboard</h1><div class='grid' id='sounds'></div>";
-
-const sounds={
-"Boom":"https://www.myinstants.com/media/sounds/vine-boom.mp3",
-"Pipe":"https://www.myinstants.com/media/sounds/metal-pipe.mp3",
-"Airhorn":"https://www.myinstants.com/media/sounds/airhorn.mp3",
-"Bruh":"https://www.myinstants.com/media/sounds/movie_1.mp3",
-"Goofy":"https://www.myinstants.com/media/sounds/goofy-ahh.mp3",
-"Discord":"https://www.myinstants.com/media/sounds/discord-ping.mp3",
-"Bonk":"https://www.myinstants.com/media/sounds/bonk.mp3",
-"Windows":"https://www.myinstants.com/media/sounds/windows-error.mp3",
-"Rizz":"https://www.myinstants.com/media/sounds/rizz.mp3"
-};
-
-let s=document.getElementById("sounds");
-
-Object.keys(sounds).forEach(name=>{
-let div=document.createElement("div");
-div.className="sound";
-div.innerText=name;
-div.onclick=()=>new Audio(sounds[name]).play();
-s.appendChild(div);
-});
-}
-
+/* ---------- INIT ---------- */
+window.onload=()=>addTab();
 </script>
 
 </body>
